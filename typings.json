@@ -1,0 +1,14 @@
+{
+  "name": "geschaeftspartner-service",
+  "dependencies": {
+  },
+  "globalDependencies": {
+    "node": "github:DefinitelyTyped/DefinitelyTyped/node/node.d.ts#b9989e602b3225d48aa4a9dfa0631ae41fea100d",
+    "express": "github:DefinitelyTyped/DefinitelyTyped/express/express.d.ts#fc341765ebbb04b7109981a25dced01f488f4d94",
+    "mime": "github:DefinitelyTyped/DefinitelyTyped/mime/mime.d.ts#fc341765ebbb04b7109981a25dced01f488f4d94",
+    "serve-static": "github:DefinitelyTyped/DefinitelyTyped/serve-static/serve-static.d.ts#fc341765ebbb04b7109981a25dced01f488f4d94",
+    "errorhandler": "github:DefinitelyTyped/DefinitelyTyped/errorhandler/errorhandler.d.ts#fc341765ebbb04b7109981a25dced01f488f4d94",
+    "method-override": "github:DefinitelyTyped/DefinitelyTyped/method-override/method-override.d.ts#fc341765ebbb04b7109981a25dced01f488f4d94",
+    "body-parser": "github:DefinitelyTyped/DefinitelyTyped/body-parser/body-parser.d.ts#fc341765ebbb04b7109981a25dced01f488f4d94"
+  }
+}
