@@ -2,6 +2,10 @@
   "name": "td-rest-server",
   "description": "Basisimplementierung für REST Server mit NODE.JS und Express",
   "version": "0.8.0",
+  "repository": {
+    "type": "git",
+    "url": "https://bitbucket.org/thomasdonathcom/hww-tdrestserver"
+  },
   "author": {
     "name": "ThomDo",
     "email": "td@thomasdonath.com"

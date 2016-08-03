@@ -6,13 +6,13 @@ import * as errorHandler from 'errorhandler';
 let morgan = require('morgan');
 
 // Debug Output
-let debug = require('debug')('AppRestServer');
+let debug = require('debug')('BaseAppRestServer');
 
 // Feature Flag, ob  mit Authentifizierung laufen soll
 const useAuthentication = true;
 
 /**
- * @class        AppRestServer
+ * @class        BaseAppRestServer
  * @description  die Basisklasse für den REST Server, liest Environment für die Konfiguration
  *                 - CONF_LISTEN_PORT       (8080)
  *                 - CONF_MONGO_SERVER_PORT (localhost:27017)
@@ -20,7 +20,7 @@ const useAuthentication = true;
  *               Konfig für MongoDB-Athentifizierung ist im Constructor hard-coded (mongoUrl)
  *               wenn Mode = dev, dann werden die Requests und Responses auf die Konsole geschrieben (Morgan Lib)
  */
-export class AppRestServer {
+export class BaseAppRestServer {
     private confListenPort: string;
     private env: string;
     private mongoServerPort: string;
