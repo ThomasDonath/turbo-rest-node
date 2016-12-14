@@ -1,6 +1,5 @@
 npm:
 	rm -rf node_modules/* || true
-	rm -rf typings/* || true
 	npm install
 
 clean:

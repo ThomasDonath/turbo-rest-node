@@ -5,13 +5,12 @@ Außerdem sind hier die "typischen" API-Exceptions zusammengefasst. Sie liefern 
 
 Um die Wiederverwendung einfach zu machen, ist das als Node-Module realisiert, dass im Projekt aus dem TAR zu installieren ist.
 
-```
-#!java
-
+```shell
 npm install ....tgz
 bzw.
 npm install https://thomdo:Passw@bitbucket.org/thomasdonathcom/hww-tdrestserver/raw/38a82b1742d74e837a544de827a27b966c3d7630/td-rest-server-0.8.0.tgz
 ```
+
 Alternativ wird die URL direkt im konsumierenden package.json angegeben.
 
 Die URL findet man, indem man im Source Browser auf Raw-Ansicht geht - dahinter verbirgt sich diese URL.
