@@ -5,5 +5,5 @@
  * @author          td@thomasdonath.com
  */
 
-export { BaseAppRestServer } from './baseapprestserver';
-export { TdRestExceptions } from './restexceptions';
+export { BaseAppRestServer } from "./baseapprestserver";
+export { TdRestExceptions } from "./restexceptions";

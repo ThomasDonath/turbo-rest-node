@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "declaration": true,
-        "target": "es2015",
+        "target": "es2016",
         "module": "commonjs",
         "sourceMap": true,
         "moduleResolution": "node",
@@ -11,11 +11,15 @@
         "removeComments": false,
         "noImplicitAny": false,
         "inlineSources": true,
+        "noUnusedParameters": false,
+        "noUnusedLocals": false,
         "outDir": "./dist/",
         "rootDir": "./src"
     },
-    "files": [
-        "./typings/index.d.ts",
-        "./src/index.ts"
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules"
     ]
 }
