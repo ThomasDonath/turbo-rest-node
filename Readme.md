@@ -15,6 +15,8 @@ Alternativ wird die URL direkt im konsumierenden package.json angegeben.
 
 Die URL findet man, indem man im Source Browser auf Raw-Ansicht geht - dahinter verbirgt sich diese URL.
 
+**Das fertige TGZ wird nach Dropbox-public kopiert (manuell) und von dort aus in den konsumierenden Projekten installiert.**
+
 ## Entwickler-Setup ##
 
 siehe ../ProjectConfig
