@@ -50,9 +50,8 @@ export class RestAppServerBase {
 
     public main() {
         debug("main() entry");
-        let d = new Date();
 
-        console.log(`${d.toLocaleDateString() + " " + d.toLocaleTimeString()} HTTP server starting up...`);
+        console.log(`${new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString()} HTTP server starting up...`);
 
         this.configServer();
         this.configMiddleware();
