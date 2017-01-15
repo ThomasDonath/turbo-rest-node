@@ -33,3 +33,5 @@ Einen dedizierten Test habe ich (noch) nicht - wird mit dem Integrationstest der
 ## Generell offene Aufgaben (TODO Teilprojekt) ##
 
 siehe Issues
+
+Logging mit Winston statt Morgan (?)

@@ -1,3 +1,5 @@
+build: 
+
 npm:
 	rm -rf node_modules/* || true
 	npm install

@@ -1,13 +1,8 @@
 import * as bodyParser from "body-parser";
+import * as debug from "debug";
 import * as errorHandler from "errorhandler";
 import * as express from "express";
-
-// log Requests/Responses (dev only)
-import * as morgan from "morgan";
-
-// Debug Output
-// TODO: testen!  let debug = require("debug")("BaseAppRestServer");
-import * as debug from "debug";
+import * as logger from "morgan";
 
 // Feature Flag, ob  mit Authentifizierung laufen soll
 const useAuthentication = true;
@@ -21,17 +16,20 @@ const useAuthentication = true;
  *               Konfig für MongoDB-Athentifizierung ist im Constructor hard-coded (mongoUrl)
  *               wenn Mode = dev, dann werden die Requests und Responses auf die Konsole geschrieben (Morgan Lib)
  */
-export class BaseAppRestServer {
-    protected mongoUrl: string;
-    protected mongoOptions: string;
-    protected isDevelopment: boolean;
+export class RestAppServerBase {
+    protected thisServer: express.Application;
+
+    private mongoUrl: string;
+    private mongoOptions: string;
+    private isDevelopment: boolean;
     private confListenPort: string;
     private env: string;
     private mongoServerPort: string;
-    private thisServer = express();
 
     constructor() {
         debug("constructor() entry");
+
+        this.thisServer = express();
 
         this.confListenPort = process.env.CONF_LISTEN_PORT || 8080;
         this.mongoServerPort = process.env.CONF_MONGO_SERVER_PORT || "localhost:27017";
@@ -109,7 +107,7 @@ export class BaseAppRestServer {
 
         if (this.isDevelopment) {
             // alle Requests und Resonses ausgeben
-            this.thisServer.use(morgan("dev"));
+            this.thisServer.use(logger("dev"));
 
             // Cross Site Requests erlauben
             this.thisServer.use((req, res, next) => {
