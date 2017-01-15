@@ -1,8 +1,8 @@
 import * as bodyParser from "body-parser";
-import * as debug from "debug";
 import * as errorHandler from "errorhandler";
 import * as express from "express";
-import * as logger from "morgan";
+import * as reqlogger from "morgan";
+import * as logger from "winston";
 
 import { IRestPayloadBase } from "./rest-payload-base";
 import { TdRestExceptions as RestExceptions } from "./restexceptions";
@@ -24,13 +24,13 @@ export class RestAppServerBase {
 
     private mongoUrl: string;
     private mongoOptions: string;
+    private mongoServerPort: string;
     private isDevelopment: boolean;
     private confListenPort: string;
     private env: string;
-    private mongoServerPort: string;
 
     constructor() {
-        debug("constructor() entry");
+        logger.debug("constructor() entry");
 
         this.thisServer = express();
 
@@ -45,11 +45,11 @@ export class RestAppServerBase {
         this.env = process.env.NODE_ENV || "development";
         this.isDevelopment = (this.env === "development");
 
-        debug("constructor exit");
+        logger.debug("constructor exit");
     }
 
     public main() {
-        debug("main() entry");
+        logger.debug("main() entry");
 
         console.log(`${new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString()} HTTP server starting up...`);
 
@@ -58,7 +58,7 @@ export class RestAppServerBase {
         this.configRoutes();
         this.listen();
 
-        debug("main() exit");
+        logger.debug("main() exit");
     }
 
     // TODO getAuthentication() ist noch zu implementieren
@@ -67,10 +67,10 @@ export class RestAppServerBase {
      * @description Express-Middleware-Handler, um die Authentifizierung und den Mandanten aus dem Request abzuleiten. Wird in den Routern der abgeleiteten Klassen aufgerufen
      */
     protected getAuthentication(req, res, next) {
-        debug("getAuthentication() entry");
+        logger.debug("getAuthentication() entry");
 
         req.params.tenant = "demo";
-        debug(`getAuthentication() exit: Tenant="${req.params.tenant}"`);
+        logger.debug(`getAuthentication() exit: Tenant="${req.params.tenant}"`);
         next();
     }
 
@@ -89,11 +89,11 @@ export class RestAppServerBase {
     }
 
     protected configRoutes() {
-        debug("configRoutes(): sollte überladen sein!");
+        logger.debug("configRoutes(): sollte überladen sein!");
     }
 
     private configServer() {
-        debug("configServer() entry");
+        logger.debug("configServer() entry");
 
         this.thisServer.use(bodyParser.json());
         if (this.isDevelopment) { this.thisServer.use(errorHandler()); }
@@ -106,15 +106,15 @@ export class RestAppServerBase {
 
         this.thisServer.disable("x-powered-by");
 
-        debug("configServer exit");
+        logger.debug("configServer exit");
     }
 
     private configMiddleware() {
-        debug("configMiddleware() entry");
+        logger.debug("configMiddleware() entry");
 
         if (this.isDevelopment) {
             // alle Requests und Resonses ausgeben
-            this.thisServer.use(logger("dev"));
+            this.thisServer.use(reqlogger("dev"));
 
             // Cross Site Requests erlauben
             this.thisServer.use((req, res, next) => {
@@ -124,7 +124,7 @@ export class RestAppServerBase {
                 next();
             });
         }
-        debug("configMiddleware() exit");
+        logger.debug("configMiddleware() exit");
     }
 
     // generischer URL-Handler, der die Controller-Methode nach HTTP umsetzt
@@ -137,7 +137,7 @@ export class RestAppServerBase {
                 res.end();
             })
             .catch((err) => {
-                debug(`Error="${err.stack}"`);
+                logger.error(`Error="${err.stack}"`);
 
                 res = RestExceptions.ServerErrorResponse(err.message, err.stack, res);
 
@@ -145,12 +145,12 @@ export class RestAppServerBase {
     }
 
     private listen() {
-        debug("listen() entry");
+        logger.debug("listen() entry");
 
         let serverInstance = this.thisServer.listen(this.confListenPort, () => {
             console.log(`HTTP server listening on port ${serverInstance.address().port} in ${this.thisServer.settings.env}`);
         });
 
-        debug("listen() exit");
+        logger.debug("listen() exit");
     }
 };

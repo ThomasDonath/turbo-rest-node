@@ -38,3 +38,4 @@ Konzept Genric Handler: https://visualstudiomagazine.com/articles/2015/09/01/man
 siehe Issues
 
 Logging mit Winston statt Morgan (?)
+PersistenceController
