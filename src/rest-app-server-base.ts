@@ -4,6 +4,9 @@ import * as errorHandler from "errorhandler";
 import * as express from "express";
 import * as logger from "morgan";
 
+import { IRestPayloadBase } from "./rest-payload-base";
+import { TdRestExceptions as RestExceptions } from "./restexceptions";
+
 // Feature Flag, ob  mit Authentifizierung laufen soll
 const useAuthentication = true;
 
@@ -81,6 +84,11 @@ export class RestAppServerBase {
         next();
     }
 
+    // eine URL mit ihrer Methode und ihrem Handler verknüpfen
+    protected addHandlerGet(inUrl: string, inMethodeRef: (params: any, query: any) => Promise<IRestPayloadBase>) {
+        this.thisServer.get(inUrl, this.getAuthentication, (req, res) => this.genericHandler(req, res, inMethodeRef));
+    }
+
     protected configRoutes() {
         debug("configRoutes(): sollte überladen sein!");
     }
@@ -117,8 +125,24 @@ export class RestAppServerBase {
                 next();
             });
         }
-
         debug("configMiddleware() exit");
+    }
+
+    // generischer URL-Handler, der die Controller-Methode nach HTTP umsetzt
+    private genericHandler = (req, res, controllerFunction: (params: any, query: any) => Promise<IRestPayloadBase>): void => {
+        // TODO: Parameter bzw. Query Parameter extrahieren und an die Controller-Methode übergeben
+        controllerFunction(req.params, req.query)
+            .then((result) => {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.write(JSON.stringify(result));
+                res.end();
+            })
+            .catch((err) => {
+                debug(`Error="${err.stack}"`);
+
+                res = RestExceptions.ServerErrorResponse(err.message, err.stack, res);
+
+            });
     }
 
     private listen() {

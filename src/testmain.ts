@@ -3,6 +3,9 @@
 import { RestAppServerBase } from "./rest-app-server-base";
 import { TdRestExceptions as RestExceptions } from "./restexceptions";
 
+import { TestController } from "./test-controller";
+import { ITestPayload } from "./testpayload";
+
 import * as debug from "debug";
 
 // TODO = Parameter für Constructor 
@@ -11,14 +14,14 @@ import * as debug from "debug";
 class ThisAppRestServer extends RestAppServerBase {
 
     private _URL_PREFIX: string;
+    private myController: TestController;
 
-    // TODO    private controller: AppController;
-
-    constructor(baseUrl: string = "/") {
+    constructor(baseUrl: string = "/", controller) {
         super();
 
         this._URL_PREFIX = baseUrl;
         // TODO        this.controller = new AppController(this.mongoUrl, this.mongoOptions);
+        this.myController = controller;
     }
 
     protected configRoutes() {
@@ -28,51 +31,22 @@ class ThisAppRestServer extends RestAppServerBase {
         this.thisServer.get(this._URL_PREFIX, this.getAuthentication, (req, res) => {
             // Query-Parameter: code, name, ort, suche
             debug(`geschaeftspartnerLkp Query: Tenant ID = "${req.params.tenant}"`);
-            /*
-                        this.controller.findGeschaeftspartnerLkp(req.query.code, req.query.name, req.query.ort, req.query.suche, req.params.tenant)
-                            .then((result) => {
-                                res.writeHead(200, { "Content-Type": "application/json" });
-                                res.write(JSON.stringify(result));
-                                res.end();
-                            })
-                            .catch((err) => {
-                                debug(`geschaeftspartnerLkp Query Error="${err.stack}"`);
-            
-                                res = RestExceptions.ServerErrorResponse(err.message, err.stack, res);
-                    });*/
+
             res.writeHead(200, { "Content-Type": "application/json" });
             res.end();
         });
 
         // eine URL mit ihrer Methode und ihrem Handler verknüpfen
-        this.thisServer.get(this._URL_PREFIX + "test", this.getAuthentication, (i, o) => this.genericHandler(i, o, this.testHandler));
+        // this.thisServer.get(this._URL_PREFIX + "test", this.getAuthentication, (i, o) => this.genericHandler(i, o, this.testHandler));
+        this.addHandlerGet(this._URL_PREFIX + "test", this.myController.testHandler);
+        this.addHandlerGet(this._URL_PREFIX + "testp/:id", this.myController.testHandlerP);
+        this.addHandlerGet(this._URL_PREFIX + "testq/", this.myController.testHandlerQ);
 
         debug("routes configured");
     }
-
-    // https://visualstudiomagazine.com/articles/2015/09/01/managing-functions-in-typescript.aspx
-
-    // ein beispielhafter URL-Handler, der Boilerplate-Code macht und den richtigen Controller aufruft
-    private genericHandler = (req, res, controllerFunction: (req, res) => Promise<string>): void => {
-        debug(`geschaeftspartnerLkp Query: Tenant ID = "${req.params.tenant}"`);
-
-        controllerFunction(req, res)
-            .then((result) => {
-                res.writeHead(200, { "Content-Type": "application/json" });
-                res.write("Hallo Held!" + JSON.stringify(req.params));
-                res.end();
-            });
-    }
-
-    // Und das ist in der dedizierten Controller-Klasse und hat nix mehr mit dem Express-Server zu tun :)
-    private testHandler = (req, res): Promise<string> => {
-
-        return new Promise<string>((fulfill, reject) => {
-            fulfill("Hallo Du Held!");
-        });
-    }
 }
 
-let thisServer = new ThisAppRestServer();
+let thisController = new TestController();
+let thisServer = new ThisAppRestServer("/api/", thisController);
 
 thisServer.main();

@@ -6,4 +6,5 @@
  */
 
 export { RestAppServerBase } from "./rest-app-server-base";
+export { IRestPayloadBase } from "./rest-payload-base";
 export { TdRestExceptions } from "./restexceptions";

@@ -30,6 +30,9 @@ zum debuggen kann die Ausgabe mit export DEBUG="AppRestServer" aktiviert werden.
 
 Einen dedizierten Test habe ich (noch) nicht - wird mit dem Integrationstest der api.geschaeftspartner getestet.
 
+Konzept Genric Handler: https://visualstudiomagazine.com/articles/2015/09/01/managing-functions-in-typescript.aspx
+
+
 ## Generell offene Aufgaben (TODO Teilprojekt) ##
 
 siehe Issues
