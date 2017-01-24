@@ -4,8 +4,8 @@ import * as express from "express";
 import * as reqlogger from "morgan";
 import * as logger from "winston";
 
-import { IRestPayloadBase } from "./rest-payload-base";
-import { TdRestExceptions as RestExceptions } from "./restexceptions";
+import { RestExceptions as RestExceptions } from "./rest-exceptions";
+import { IRestPayloadBase } from "./rest-payload-base.interface";
 
 // Feature Flag, ob  mit Authentifizierung laufen soll
 const useAuthentication = true;
@@ -22,26 +22,17 @@ const useAuthentication = true;
 export class RestAppServerBase {
     protected thisServer: express.Application;
 
-    private mongoUrl: string;
-    private mongoOptions: string;
-    private mongoServerPort: string;
     private isDevelopment: boolean;
     private confListenPort: string;
     private env: string;
 
-    constructor() {
+    constructor(protected appController) {
         logger.debug("constructor() entry");
 
         this.thisServer = express();
 
         this.confListenPort = process.env.CONF_LISTEN_PORT || 8080;
-        this.mongoServerPort = process.env.CONF_MONGO_SERVER_PORT || "localhost:27017";
-        if (useAuthentication) {
-            this.mongoUrl = "mongodb://schemaOwner:manager28@" + this.mongoServerPort + "/";
-            this.mongoOptions = "?authSource=admin";
-        } else {
-            this.mongoUrl = "mongodb://" + this.mongoServerPort + "/";
-        }
+
         this.env = process.env.NODE_ENV || "development";
         this.isDevelopment = (this.env === "development");
 
@@ -84,8 +75,28 @@ export class RestAppServerBase {
     }
 
     // eine URL mit ihrer Methode und ihrem Handler verknüpfen
-    protected addHandlerGet(inUrl: string, inMethodeRef: (params: any, query: any) => Promise<IRestPayloadBase>) {
-        this.thisServer.get(inUrl, this.getAuthentication, (req, res) => this.genericHandler(req, res, inMethodeRef));
+    protected addHandlerGet(inUrl: string, inMethodeRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
+        this.thisServer.get(inUrl, this.getAuthentication, (req, res) => {
+            this.genericHandler(req, res, inMethodeRef, () => this.appController);
+        });
+    }
+    // eine URL mit ihrer Methode und ihrem Handler verknüpfen
+    protected addHandlerPut(inUrl: string, inMethodeRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
+        this.thisServer.put(inUrl, this.getAuthentication, (req, res) => {
+            this.genericHandler(req, res, inMethodeRef, () => this.appController);
+        });
+    }
+    // eine URL mit ihrer Methode und ihrem Handler verknüpfen
+    protected addHandlerPost(inUrl: string, inMethodeRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
+        this.thisServer.post(inUrl, this.getAuthentication, (req, res) => {
+            this.genericHandler(req, res, inMethodeRef, () => this.appController);
+        });
+    }
+    // eine URL mit ihrer Methode und ihrem Handler verknüpfen
+    protected addHandlerDelete(inUrl: string, inMethodeRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
+        this.thisServer.delete(inUrl, this.getAuthentication, (req, res) => {
+            this.genericHandler(req, res, inMethodeRef, () => this.appController);
+        });
     }
 
     protected configRoutes() {
@@ -102,7 +113,7 @@ export class RestAppServerBase {
         console.log("port: %d", this.confListenPort);
         console.log("mode: %s", this.env);
         console.log("its development? " + this.isDevelopment);
-        console.log(`MongoDB URL="${this.mongoServerPort}"`);
+        // TODO        console.log(`MongoDB URL="${this.mongoServerPort}"`);
 
         this.thisServer.disable("x-powered-by");
 
@@ -128,9 +139,13 @@ export class RestAppServerBase {
     }
 
     // generischer URL-Handler, der die Controller-Methode nach HTTP umsetzt
-    private genericHandler = (req, res, controllerFunction: (params: any, query: any) => Promise<IRestPayloadBase>): void => {
-        // TODO: Parameter bzw. Query Parameter extrahieren und an die Controller-Methode übergeben
-        controllerFunction(req.params, req.query)
+    private genericHandler = (
+        req: express.Request,
+        res: express.Response,
+        controllerFunction: (req: express.Request, getControllerFn) => Promise<IRestPayloadBase>,
+        getControllerFn): void => {
+
+        controllerFunction(req, getControllerFn)
             .then((result) => {
                 res.writeHead(200, { "Content-Type": "application/json" });
                 res.write(JSON.stringify(result));
@@ -138,9 +153,12 @@ export class RestAppServerBase {
             })
             .catch((err) => {
                 logger.error(`Error="${err.stack}"`);
+                if (err instanceof RestExceptions.TdRestException) {
+                    res = err.giveResponse(res);
+                } else {
+                    res = RestExceptions.ServerErrorResponse(err.message, err.stack, res);
 
-                res = RestExceptions.ServerErrorResponse(err.message, err.stack, res);
-
+                }
             });
     }
 

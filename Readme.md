@@ -35,7 +35,11 @@ Konzept Genric Handler: https://visualstudiomagazine.com/articles/2015/09/01/man
 
 ## Generell offene Aufgaben (TODO Teilprojekt) ##
 
-siehe Issues
+1. Packen und in der GP-API ausprobieren
+2. Persistence Manager analog dem API-Server
+3. Logging mit Winston: Timestamp und Quelle setzen; Request-ID, dynamisces Log Level!
+4. siehe Issues
+5. Tests
 
-Logging mit Winston statt Morgan (?)
-PersistenceController
+testen: curl -v localhost:8080/api/testp/12;curl -v localhost:8080/api/testq?id=123
+

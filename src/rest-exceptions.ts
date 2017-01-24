@@ -2,7 +2,7 @@ import * as express from "express";
 
 // TODO
 // tslint:disable-next-line:no-namespace
-export namespace TdRestExceptions {
+export namespace RestExceptions {
 
     /**
      * @class  TdRestException

@@ -3,7 +3,7 @@
 import * as logger from "winston";
 
 import { RestAppServerBase } from "./rest-app-server-base";
-import { TdRestExceptions as RestExceptions } from "./restexceptions";
+import { RestExceptions as RestExceptions } from "./rest-exceptions";
 
 import { TestController } from "./test-controller";
 import { ITestPayload } from "./testpayload";
@@ -17,7 +17,7 @@ class ThisAppRestServer extends RestAppServerBase {
     private myController: TestController;
 
     constructor(baseUrl: string = "/", controller) {
-        super();
+        super(controller);
 
         this._URL_PREFIX = baseUrl;
         // TODO        this.controller = new AppController(this.mongoUrl, this.mongoOptions);
@@ -46,7 +46,8 @@ class ThisAppRestServer extends RestAppServerBase {
     }
 }
 
-let thisController = new TestController();
+let thisController = new TestController("blublu");
 let thisServer = new ThisAppRestServer("/api/", thisController);
 
 thisServer.main();
+// curl http://localhost:8080/api/test; curl http://localhost:8080/api/testp/:id=2809; curl http://localhost:8080/api/testq?id=2808

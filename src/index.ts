@@ -6,5 +6,6 @@
  */
 
 export { RestAppServerBase } from "./rest-app-server-base";
-export { IRestPayloadBase } from "./rest-payload-base";
-export { TdRestExceptions } from "./restexceptions";
+export { IRestPayloadBase } from "./rest-payload-base.interface";
+export { RestExceptions } from "./rest-exceptions";
+export { RestPersistenceMongo } from "./rest-persistence-mongo";
