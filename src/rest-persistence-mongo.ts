@@ -91,13 +91,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                 .then((rowCount) => {
                     if (rowCount === 0) {
                         console.log(`creating indexes on ${dbConnection.databaseName}`);
-                        dbConnection.collection(getMySelf().COLLECTIONNAME).createIndexes([
-                            { key: { id: 1 }, name: "id_", unique: true, background: true },
-                            { key: { code: 1 }, name: "code_", unique: true, background: true },
-                            { key: { name: 1, billing_adr_ort: 1 }, name: "name_ort_", unique: true, background: true },
-                            { key: { billing_adr_ort: 1 }, name: "ort_", background: true },
-                            { key: { name: "text", billing_adr_ort: "text" }, name: "name_ort_t_", default_language: "german", background: true },
-                        ]);
+                        dbConnection.collection(getMySelf().COLLECTIONNAME).createIndexes(RestPersistenceAbstract.indexDefs);
                     }
                 })
                 // insert the row

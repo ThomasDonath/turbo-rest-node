@@ -2,6 +2,13 @@ import { IAuditRecord } from "./rest-payload-auditrecord.interface";
 import { IRestPayloadBase } from "./rest-payload-base.interface";
 
 export abstract class RestPersistenceAbstract {
+    // TODO TypeDef
+    public static setIndexDefs(indexList): void {
+        RestPersistenceAbstract.indexDefs = indexList;
+    }
+
+    protected static indexDefs;
+
     protected dbHostNamePort: string;
     protected dbUsername: string;
     protected dbUserPassword: string;

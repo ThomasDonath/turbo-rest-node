@@ -77,25 +77,25 @@ export class RestAppServerBase {
     // eine URL mit ihrer Methode und ihrem Handler verknüpfen
     protected addHandlerGet(inUrl: string, inMethodeRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
         this.thisServer.get(inUrl, this.getAuthentication, (req, res) => {
-            this.genericHandler(req, res, inMethodeRef, () => this.appController);
+            this.genericHandler(req, res, inMethodeRef, () => this.appController, 200);
         });
     }
     // eine URL mit ihrer Methode und ihrem Handler verknüpfen
     protected addHandlerPut(inUrl: string, inMethodeRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
         this.thisServer.put(inUrl, this.getAuthentication, (req, res) => {
-            this.genericHandler(req, res, inMethodeRef, () => this.appController);
+            this.genericHandler(req, res, inMethodeRef, () => this.appController, 200);
         });
     }
     // eine URL mit ihrer Methode und ihrem Handler verknüpfen
     protected addHandlerPost(inUrl: string, inMethodeRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
         this.thisServer.post(inUrl, this.getAuthentication, (req, res) => {
-            this.genericHandler(req, res, inMethodeRef, () => this.appController);
+            this.genericHandler(req, res, inMethodeRef, () => this.appController, 201);
         });
     }
     // eine URL mit ihrer Methode und ihrem Handler verknüpfen
     protected addHandlerDelete(inUrl: string, inMethodeRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
         this.thisServer.delete(inUrl, this.getAuthentication, (req, res) => {
-            this.genericHandler(req, res, inMethodeRef, () => this.appController);
+            this.genericHandler(req, res, inMethodeRef, () => this.appController, 200);
         });
     }
 
@@ -143,11 +143,12 @@ export class RestAppServerBase {
         req: express.Request,
         res: express.Response,
         controllerFunction: (req: express.Request, getControllerFn) => Promise<IRestPayloadBase>,
-        getControllerFn): void => {
+        getControllerFn,
+        successCode: number): void => {
 
         controllerFunction(req, getControllerFn)
             .then((result) => {
-                res.writeHead(200, { "Content-Type": "application/json" });
+                res.writeHead(successCode, { "Content-Type": "application/json" });
                 res.write(JSON.stringify(result));
                 res.end();
             })
