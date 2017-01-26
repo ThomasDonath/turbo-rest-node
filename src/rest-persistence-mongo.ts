@@ -7,6 +7,8 @@ import { RestPersistenceAbstract } from "./rest-persistence-abstract";
 import { ITurboLogger } from "./turbo-logger.interface";
 
 export class RestPersistenceMongo extends RestPersistenceAbstract {
+    private static dontIndexes: boolean = false;
+
     protected dbHostNamePort: string;
     protected dbUsername: string;
     protected dbUserPassword: string;
@@ -84,14 +86,27 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
             MongoClient.connect(getMySelf().getConnectString(tenantId))
                 .then((db) => {
                     dbConnection = db;
-                    return (dbConnection.collection(getMySelf().COLLECTIONNAME).count({}));
+
+                    if (!RestPersistenceMongo.dontIndexes) {
+                        RestPersistenceMongo.dontIndexes = true;
+                        return (dbConnection.collection(getMySelf().COLLECTIONNAME).count({}));
+                    } else {
+                        return new Promise((ff) => {
+                            ff(0);
+                        });
+                    }
                 })
                 // check for new Schema (== new tenant)
                 // TODO überladen je Objekt und Status merken
                 .then((rowCount) => {
-                    if (rowCount === 0) {
-                        console.log(`creating indexes on ${dbConnection.databaseName}`);
-                        dbConnection.collection(getMySelf().COLLECTIONNAME).createIndexes(RestPersistenceAbstract.indexDefs);
+                    if (!RestPersistenceMongo.dontIndexes && (rowCount === 0)) {
+                        RestPersistenceAbstract.logger.svc.info(`creating indexes on ${dbConnection.databaseName}; row id ${thisRow.id}`);
+
+                        return dbConnection.collection(getMySelf().COLLECTIONNAME).createIndexes(RestPersistenceAbstract.indexDefs);
+                    } else {
+                        return new Promise((ff) => {
+                            ff();
+                        });
                     }
                 })
                 // insert the row
@@ -102,7 +117,12 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     if ((err.name === "MongoError") && (err.code === 11000) && (err.driver)) {
                         throw (new RestExceptions.RecordExistsAlready(thisRow.auditRecord.changedAt, thisRow.auditRecord.changedBy));
                     } else {
-                        throw (err);
+                        // weiß nicht, ob der Fehlercode stimmt
+                        RestPersistenceAbstract.logger.svc.warn("create duplicate index(?) errcode ${err.code}");
+
+                        if (!((err.name === "MongoError") && (err.code === 11000) && (err.driver))) {
+                            throw (err);
+                        }
                     }
                 })
                 .then(() => {
@@ -161,7 +181,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     fulfill(thisRow);
                 })
                 .catch((err) => {
-                    RestPersistenceAbstract.logger.svc.error(`delete ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}"): ${err}`);
+                    RestPersistenceAbstract.logger.svc.warn(`delete ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}"): ${err}`);
                     if (dbConnection) { dbConnection.close(); };
                     reject(err);
                 });
