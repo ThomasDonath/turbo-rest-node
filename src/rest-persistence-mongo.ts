@@ -1,10 +1,10 @@
 import { Db, MongoClient } from "mongodb";
 import * as uuid from "uuid";
-import * as logger from "winston";
 
 import { RestExceptions } from "./rest-exceptions";
 import { IRestPayloadBase } from "./rest-payload-base.interface";
 import { RestPersistenceAbstract } from "./rest-persistence-abstract";
+import { ITurboLogger } from "./turbo-logger.interface";
 
 export class RestPersistenceMongo extends RestPersistenceAbstract {
     protected dbHostNamePort: string;
@@ -14,8 +14,8 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
     protected dbMongoUrl: String;
     private dbMongoOptions: String;
 
-    constructor(protected useAuthentication: boolean = true, private COLLECTIONNAME: string, private doMarkDeleted = true) {
-        super(useAuthentication);
+    constructor(protected useAuthentication: boolean = true, private COLLECTIONNAME: string, useLogger: ITurboLogger, private doMarkDeleted = true) {
+        super(useAuthentication, useLogger);
 
         if (useAuthentication) {
             // schemaOwner/manager28
@@ -33,7 +33,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         }
    */
     public doGet<T extends IRestPayloadBase>(idIn: string, tenantId: string, getMySelf: () => RestPersistenceMongo): Promise<T> {
-        logger.debug(`get ${getMySelf().COLLECTIONNAME} ("${idIn}", "${tenantId}")`);
+        RestPersistenceAbstract.logger.svc.debug(`get ${getMySelf().COLLECTIONNAME} ("${idIn}", "${tenantId}")`);
 
         return new Promise((fulfill, reject) => {
             if (!tenantId) { throw new Error("Missing TenantID"); };
@@ -62,7 +62,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     fulfill(result);
                 })
                 .catch((err) => {
-                    logger.error(`get ${getMySelf().COLLECTIONNAME} ("${thisId}", "${thisTenant}"): ${err}`);
+                    RestPersistenceAbstract.logger.svc.error(`get ${getMySelf().COLLECTIONNAME} ("${thisId}", "${thisTenant}"): ${err}`);
                     if (dbConnection) { dbConnection.close(); };
                     reject(err);
                 });
@@ -70,7 +70,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
     }
 
     public doInsert<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceMongo): Promise<T> {
-        logger.debug(`insert ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}")`);
+        RestPersistenceAbstract.logger.svc.debug(`insert ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}")`);
 
         // TODO2 PK testen und ggf. erneut erzeugen, oder die ObjectId nutzen?
         thisRow.id = thisRow.id || uuid.v4();
@@ -110,7 +110,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     fulfill(thisRow);
                 })
                 .catch((err) => {
-                    logger.error(`insert ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}"): ${err}`);
+                    RestPersistenceAbstract.logger.svc.error(`insert ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}"): ${err}`);
                     if (dbConnection) { dbConnection.close(); };
                     reject(err);
                 });
@@ -118,7 +118,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
     }
 
     public doDelete<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceMongo, noLock: boolean = false): Promise<T> {
-        logger.debug(`delete ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}")`);
+        RestPersistenceAbstract.logger.svc.debug(`delete ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}")`);
 
         return new Promise((fulfill, reject) => {
             if (!tenantId) { throw new Error("missing TenantID"); };
@@ -161,7 +161,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     fulfill(thisRow);
                 })
                 .catch((err) => {
-                    logger.error(`delete ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}"): ${err}`);
+                    RestPersistenceAbstract.logger.svc.error(`delete ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}"): ${err}`);
                     if (dbConnection) { dbConnection.close(); };
                     reject(err);
                 });
@@ -169,7 +169,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
     }
 
     public doUpdate<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceMongo): Promise<T> {
-        logger.debug(`update ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}")`);
+        RestPersistenceAbstract.logger.svc.debug(`update ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}")`);
 
         let dbConnection: Db;
         let queryPredicate = { id: thisRow.id };
@@ -206,7 +206,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     fulfill(thisRow);
                 })
                 .catch((err) => {
-                    logger.error(`update ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}"): ${err}`);
+                    RestPersistenceAbstract.logger.svc.error(`update ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}"): ${err}`);
                     if (dbConnection) { dbConnection.close(); };
                     reject(err);
                 });

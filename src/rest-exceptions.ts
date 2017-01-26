@@ -1,5 +1,7 @@
 import * as express from "express";
 
+// TODO mehrsprachig!
+
 // TODO
 // tslint:disable-next-line:no-namespace
 export namespace RestExceptions {

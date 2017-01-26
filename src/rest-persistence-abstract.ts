@@ -1,11 +1,13 @@
 import { IAuditRecord } from "./rest-payload-auditrecord.interface";
 import { IRestPayloadBase } from "./rest-payload-base.interface";
+import { ITurboLogger } from "./turbo-logger.interface";
 
 export abstract class RestPersistenceAbstract {
     // TODO TypeDef
     public static setIndexDefs(indexList): void {
         RestPersistenceAbstract.indexDefs = indexList;
     }
+    protected static logger: ITurboLogger;
 
     protected static indexDefs;
 
@@ -13,10 +15,16 @@ export abstract class RestPersistenceAbstract {
     protected dbUsername: string;
     protected dbUserPassword: string;
 
-    constructor(protected useAuthentication: boolean = true) {
+    constructor(protected useAuthentication: boolean = true, useLogger: ITurboLogger) {
+        RestPersistenceAbstract.logger = useLogger;
+
         this.dbHostNamePort = process.env.CONF_DB_SERVERNAME_PORT || "localhost:27017";
         this.dbUsername = process.env.CONF_DB_USERNAME;
         this.dbUserPassword = process.env.CONF_DB_USERPASSWORD;
+
+        RestPersistenceAbstract.logger.svc.info(`CONF_DB_SERVERNAME_PORT: "${this.dbHostNamePort}"`);
+        RestPersistenceAbstract.logger.svc.info(`CONF_DB_USERNAME: "${this.dbUsername}"`);
+        RestPersistenceAbstract.logger.svc.info(`CONF_DB_USERPASSWORD: ${this.dbUserPassword ? "***" : "null"}`);
     }
 
     public abstract doGet<T extends IRestPayloadBase>(idIn: string, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;

@@ -16,7 +16,7 @@
         ],
         // ist Server-App und diese Regel deshalb unzutreffend
         "no-console": [
-            false
+            true
         ]
     },
     "rulesDirectory": [

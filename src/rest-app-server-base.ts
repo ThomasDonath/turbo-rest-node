@@ -2,13 +2,10 @@ import * as bodyParser from "body-parser";
 import * as errorHandler from "errorhandler";
 import * as express from "express";
 import * as reqlogger from "morgan";
-import * as logger from "winston";
 
 import { RestExceptions as RestExceptions } from "./rest-exceptions";
 import { IRestPayloadBase } from "./rest-payload-base.interface";
-
-// Feature Flag, ob  mit Authentifizierung laufen soll
-const useAuthentication = true;
+import { ITurboLogger } from "./turbo-logger.interface";
 
 /**
  * @class        BaseAppRestServer
@@ -20,14 +17,19 @@ const useAuthentication = true;
  *               wenn Mode = dev, dann werden die Requests und Responses auf die Konsole geschrieben (Morgan Lib)
  */
 export class RestAppServerBase {
+    protected static logger: ITurboLogger;
+
+    // Feature Flag, ob  mit Authentifizierung laufen soll
+    protected useAuthentication = true;
     protected thisServer: express.Application;
 
     private isDevelopment: boolean;
     private confListenPort: string;
     private env: string;
 
-    constructor(protected appController) {
-        logger.debug("constructor() entry");
+    constructor(protected appController, useLogger: ITurboLogger, doUseAuthentication: boolean = true) {
+        RestAppServerBase.logger = useLogger;
+        RestAppServerBase.logger.svc.debug("constructor() entry");
 
         this.thisServer = express();
 
@@ -36,20 +38,20 @@ export class RestAppServerBase {
         this.env = process.env.NODE_ENV || "development";
         this.isDevelopment = (this.env === "development");
 
-        logger.debug("constructor exit");
+        RestAppServerBase.logger.svc.debug("constructor exit");
     }
 
     public main() {
-        logger.debug("main() entry");
+        RestAppServerBase.logger.svc.debug("main() entry");
 
-        console.log(`${new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString()} HTTP server starting up...`);
+        RestAppServerBase.logger.svc.info(`${new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString()} HTTP server starting up...`);
 
         this.configServer();
         this.configMiddleware();
         this.configRoutes();
         this.listen();
 
-        logger.debug("main() exit");
+        RestAppServerBase.logger.svc.debug("main() exit");
     }
 
     // TODO getAuthentication() ist noch zu implementieren
@@ -57,11 +59,12 @@ export class RestAppServerBase {
      * @function getAuthentication
      * @description Express-Middleware-Handler, um die Authentifizierung und den Mandanten aus dem Request abzuleiten. Wird in den Routern der abgeleiteten Klassen aufgerufen
      */
-    protected getAuthentication(req, res, next) {
-        logger.debug("getAuthentication() entry");
+    protected getAuthentication(req: express.Request, res: express.Response, next) {
+        RestAppServerBase.logger.svc.debug("getAuthentication() entry");
 
         req.params.tenant = "demo";
-        logger.debug(`getAuthentication() exit: Tenant="${req.params.tenant}"`);
+        RestAppServerBase.logger.svc.debug(`getAuthentication() exit: Tenant="${req.params.tenant}"`);
+
         next();
     }
 
@@ -69,59 +72,55 @@ export class RestAppServerBase {
      * @function getDemoTenant
      * @description Express-Middleware-Handler, um den Mandanten für die Test-/Demodaten zu setzen
      */
-    protected getDemoTenant(req, res, next) {
+    protected getDemoTenant(req: express.Request, res: express.Response, next) {
         req.params.tenant = "demo";
         next();
     }
 
     // eine URL mit ihrer Methode und ihrem Handler verknüpfen
     protected addHandlerGet(inUrl: string, inMethodeRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
-        this.thisServer.get(inUrl, this.getAuthentication, (req, res) => {
+        this.thisServer.get(inUrl, this.getAuthentication, (req: express.Request, res: express.Response) => {
             this.genericHandler(req, res, inMethodeRef, () => this.appController, 200);
         });
     }
-    // eine URL mit ihrer Methode und ihrem Handler verknüpfen
     protected addHandlerPut(inUrl: string, inMethodeRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
         this.thisServer.put(inUrl, this.getAuthentication, (req, res) => {
             this.genericHandler(req, res, inMethodeRef, () => this.appController, 200);
         });
     }
-    // eine URL mit ihrer Methode und ihrem Handler verknüpfen
     protected addHandlerPost(inUrl: string, inMethodeRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
-        this.thisServer.post(inUrl, this.getAuthentication, (req, res) => {
+        this.thisServer.post(inUrl, this.getAuthentication, (req: express.Request, res: express.Response) => {
             this.genericHandler(req, res, inMethodeRef, () => this.appController, 201);
         });
     }
-    // eine URL mit ihrer Methode und ihrem Handler verknüpfen
     protected addHandlerDelete(inUrl: string, inMethodeRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
-        this.thisServer.delete(inUrl, this.getAuthentication, (req, res) => {
+        this.thisServer.delete(inUrl, this.getAuthentication, (req: express.Request, res: express.Response) => {
             this.genericHandler(req, res, inMethodeRef, () => this.appController, 200);
         });
     }
 
     protected configRoutes() {
-        logger.debug("configRoutes(): sollte überladen sein!");
+        RestAppServerBase.logger.svc.warn("configRoutes(): sollte überladen sein!");
     }
 
     private configServer() {
-        logger.debug("configServer() entry");
+        RestAppServerBase.logger.svc.debug("configServer() entry");
 
         this.thisServer.use(bodyParser.json());
         if (this.isDevelopment) { this.thisServer.use(errorHandler()); }
 
-        console.log("using configuration:");
-        console.log("port: %d", this.confListenPort);
-        console.log("mode: %s", this.env);
-        console.log("its development? " + this.isDevelopment);
-        // TODO        console.log(`MongoDB URL="${this.mongoServerPort}"`);
+        RestAppServerBase.logger.svc.info("using configuration:");
+        RestAppServerBase.logger.svc.info("port: %d", this.confListenPort);
+        RestAppServerBase.logger.svc.info("mode: %s", this.env);
+        RestAppServerBase.logger.svc.info("its development? " + this.isDevelopment);
 
         this.thisServer.disable("x-powered-by");
 
-        logger.debug("configServer exit");
+        RestAppServerBase.logger.svc.debug("configServer exit");
     }
 
     private configMiddleware() {
-        logger.debug("configMiddleware() entry");
+        RestAppServerBase.logger.svc.debug("configMiddleware() entry");
 
         if (this.isDevelopment) {
             // alle Requests und Resonses ausgeben
@@ -135,7 +134,7 @@ export class RestAppServerBase {
                 next();
             });
         }
-        logger.debug("configMiddleware() exit");
+        RestAppServerBase.logger.svc.debug("configMiddleware() exit");
     }
 
     // generischer URL-Handler, der die Controller-Methode nach HTTP umsetzt
@@ -145,15 +144,17 @@ export class RestAppServerBase {
         controllerFunction: (req: express.Request, getControllerFn) => Promise<IRestPayloadBase>,
         getControllerFn,
         successCode: number): void => {
+        RestAppServerBase.logger.svc.debug("genericHandler entry");
 
         controllerFunction(req, getControllerFn)
             .then((result) => {
                 res.writeHead(successCode, { "Content-Type": "application/json" });
                 res.write(JSON.stringify(result));
                 res.end();
+                RestAppServerBase.logger.svc.debug("genericHandler exit");
             })
             .catch((err) => {
-                logger.error(`Error="${err.stack}"`);
+                RestAppServerBase.logger.svc.error(`Error="${err.stack}"`);
                 if (err instanceof RestExceptions.TdRestException) {
                     res = err.giveResponse(res);
                 } else {
@@ -164,12 +165,12 @@ export class RestAppServerBase {
     }
 
     private listen() {
-        logger.debug("listen() entry");
+        RestAppServerBase.logger.svc.debug("listen() entry");
 
         let serverInstance = this.thisServer.listen(this.confListenPort, () => {
             console.log(`HTTP server listening on port ${serverInstance.address().port} in ${this.thisServer.settings.env}`);
         });
 
-        logger.debug("listen() exit");
+        RestAppServerBase.logger.svc.debug("listen() exit");
     }
 };
