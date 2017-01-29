@@ -3,7 +3,7 @@ import { IRestPayloadBase } from "./rest-payload-base.interface";
 import { ITurboLogger } from "./turbo-logger.interface";
 
 export abstract class RestPersistenceAbstract {
-    // TODO TypeDef
+    // TODO TypeDef für indexList
     public static setIndexDefs(indexList): void {
         RestPersistenceAbstract.indexDefs = indexList;
     }
@@ -33,7 +33,7 @@ export abstract class RestPersistenceAbstract {
     public abstract doUpdate<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
 
     protected getAuditData(oldRowVersion: number): IAuditRecord {
-        // TODO Username in changedBy!
+        // TODO Richtiger Username in changedBy!
         return {
             changedAt: new Date(),
             changedBy: "Anonymous",

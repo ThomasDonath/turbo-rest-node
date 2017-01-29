@@ -7,7 +7,7 @@ import { RestPersistenceAbstract } from "./rest-persistence-abstract";
 import { ITurboLogger } from "./turbo-logger.interface";
 
 export class RestPersistenceMongo extends RestPersistenceAbstract {
-    private static dontIndexes: boolean = false;
+    private static dontCheckIndexes: boolean = false;
 
     protected dbHostNamePort: string;
     protected dbUsername: string;
@@ -82,13 +82,15 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
             if (!tenantId) { throw new Error("missing TenantID"); };
 
             let dbConnection: Db;
+            let doCreateIndex: boolean = false;
 
             MongoClient.connect(getMySelf().getConnectString(tenantId))
                 .then((db) => {
                     dbConnection = db;
 
-                    if (!RestPersistenceMongo.dontIndexes) {
-                        RestPersistenceMongo.dontIndexes = true;
+                    if (!RestPersistenceMongo.dontCheckIndexes) {
+                        doCreateIndex = true;
+                        RestPersistenceMongo.dontCheckIndexes = true;
                         return (dbConnection.collection(getMySelf().COLLECTIONNAME).count({}));
                     } else {
                         return new Promise((ff) => {
@@ -97,9 +99,8 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     }
                 })
                 // check for new Schema (== new tenant)
-                // TODO überladen je Objekt und Status merken
                 .then((rowCount) => {
-                    if (!RestPersistenceMongo.dontIndexes && (rowCount === 0)) {
+                    if (doCreateIndex) {
                         RestPersistenceAbstract.logger.svc.info(`creating indexes on ${dbConnection.databaseName}; row id ${thisRow.id}`);
 
                         return dbConnection.collection(getMySelf().COLLECTIONNAME).createIndexes(RestPersistenceAbstract.indexDefs);
