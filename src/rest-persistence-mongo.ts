@@ -27,13 +27,35 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
             this.dbMongoUrl = `mongodb://${this.dbHostNamePort}/`;
         }
     }
-    /*
-        // das wird derr Knackpunkt...
-        // deleted === true ausblenden
-        public doQBE<T extends IRestPayloadBase>(id: uuid, tenantId: string, getMySelf): Promise<T> {
-            return new Promise((fulfill, error) => { });
-        }
-   */
+
+    // das wird derr Knackpunkt...
+    // deleted === true ausblenden
+    public doQBE<T extends IRestPayloadBase>(predicate, tenantId: string, getMySelf): Promise<T> {
+        RestPersistenceAbstract.logger.svc.debug(`doQBE ${getMySelf().COLLECTIONNAME} ("${predicate}", "${tenantId}")`);
+
+        return new Promise((fulfill, reject) => {
+            if (!tenantId) { throw new Error("Missing TenantID"); };
+
+            let dbConnection: Db;
+
+            MongoClient.connect(getMySelf().getConnectString(tenantId))
+                .then((db) => {
+                    dbConnection = db;
+
+                    // TODO auch Sortierung aus Parameter
+                    return dbConnection.collection(getMySelf().COLLECTIONNAME).find(predicate).sort({ name: 1, billing_adr_ort: 1 }).toArray();
+                })
+                .then((docs) => {
+                    dbConnection.close();
+                    fulfill(docs);
+                })
+                .catch((err) => {
+                    if (dbConnection) { dbConnection.close(); };
+                    reject(err);
+                });
+        });
+    }
+
     public doGet<T extends IRestPayloadBase>(idIn: string, tenantId: string, getMySelf: () => RestPersistenceMongo): Promise<T> {
         RestPersistenceAbstract.logger.svc.debug(`get ${getMySelf().COLLECTIONNAME} ("${idIn}", "${tenantId}")`);
 
@@ -50,8 +72,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
 
                     let q = { id: thisId };
 
-                    // TODO passt das Prädikat???
-                    return dbConnection.collection(getMySelf().COLLECTIONNAME).find(q, { _id: 0 }).toArray();
+                    return dbConnection.collection(getMySelf().COLLECTIONNAME).find(q).toArray();
                 })
                 .then((docs) => {
                     dbConnection.close();
