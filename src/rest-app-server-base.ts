@@ -3,9 +3,9 @@ import * as errorHandler from "errorhandler";
 import * as express from "express";
 import * as reqlogger from "morgan";
 
+import { IRestPayloadBase } from "./i-rest-payload-base";
+import { ITurboLogger } from "./i-turbo-logger";
 import { RestExceptions as RestExceptions } from "./rest-exceptions";
-import { IRestPayloadBase } from "./rest-payload-base.interface";
-import { ITurboLogger } from "./turbo-logger.interface";
 
 /**
  * @class        BaseAppRestServer

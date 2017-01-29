@@ -1,6 +1,6 @@
-import { IAuditRecord } from "./rest-payload-auditrecord.interface";
-import { IRestPayloadBase } from "./rest-payload-base.interface";
-import { ITurboLogger } from "./turbo-logger.interface";
+import { IAuditRecord } from "./i-rest-payload-auditrecord";
+import { IRestPayloadBase } from "./i-rest-payload-base";
+import { ITurboLogger } from "./i-turbo-logger";
 
 export abstract class RestPersistenceAbstract {
     // TODO TypeDef für indexList

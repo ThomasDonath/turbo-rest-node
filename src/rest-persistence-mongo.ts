@@ -1,10 +1,10 @@
 import { Db, MongoClient } from "mongodb";
 import * as uuid from "uuid";
 
+import { IRestPayloadBase } from "./i-rest-payload-base";
+import { ITurboLogger } from "./i-turbo-logger";
 import { RestExceptions } from "./rest-exceptions";
-import { IRestPayloadBase } from "./rest-payload-base.interface";
 import { RestPersistenceAbstract } from "./rest-persistence-abstract";
-import { ITurboLogger } from "./turbo-logger.interface";
 
 export class RestPersistenceMongo extends RestPersistenceAbstract {
     private static dontCheckIndexes: boolean = false;

@@ -1,4 +1,4 @@
-import { IAuditRecord } from "./rest-payload-auditrecord.interface";
+import { IAuditRecord } from "./i-rest-payload-auditrecord";
 
 export interface IRestPayloadBase {
     id?: string;
