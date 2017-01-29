@@ -169,7 +169,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
 
                     thisRow.auditRecord = getMySelf().getAuditData(oldRow.auditRecord.rowVersion);
 
-                    // TODO oder findAndReplaceOne - weil im find oben gibt keinen Lock - mit  findAndReplaceOne könnte RowVersion geprüft werden - Rollback? 
+                    // TODO oder findAndReplaceOne - weil im find oben gibt keinen Lock - mit  findAndReplaceOne könnte RowVersion geprüft werden - Rollback?
                     if (getMySelf().doMarkDeleted) {
                         thisRow.deleted = true;
                         return dbConnection.collection(getMySelf().COLLECTIONNAME).replaceOne(queryPredicate, thisRow);
@@ -219,7 +219,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
 
                     thisRow.auditRecord = getMySelf().getAuditData(oldRow.auditRecord.rowVersion);
 
-                    // TODO oder findAndReplaceOne - weil im find oben gibt keinen Lock - mit  findAndReplaceOne könnte RowVersion geprüft werden - Rollback?                   
+                    // TODO oder findAndReplaceOne - weil im find oben gibt keinen Lock - mit  findAndReplaceOne könnte RowVersion geprüft werden - Rollback?
                     return (dbConnection.collection(getMySelf().COLLECTIONNAME).replaceOne(queryPredicate, thisRow));
                 })
                 .then(() => {

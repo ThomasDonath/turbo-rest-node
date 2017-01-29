@@ -9,7 +9,7 @@ import { TestController } from "./test-controller";
 import { ITestPayload } from "./testpayload";
 import { ITurboLogger } from "./turbo-logger.interface";
 
-// TODO = Parameter für Constructor 
+// TODO = Parameter für Constructor
 // const URL_PREFIX = "/svcgeschaeftspartner/";
 
 class ThisAppRestServer extends RestAppServerBase {
