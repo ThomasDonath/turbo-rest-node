@@ -28,7 +28,6 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         }
     }
 
-    // TODO deleted === true ausblenden
     public doQBE<T extends IRestPayloadBase>(predicate, sortCriteria, tenantId: string, getMySelf): Promise<T> {
         RestPersistenceAbstract.logger.svc.debug(`doQBE ${getMySelf().COLLECTIONNAME} ("${predicate}", "${tenantId}")`);
 
@@ -36,12 +35,15 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
             if (!tenantId) { throw new Error("Missing TenantID"); };
 
             let dbConnection: Db;
+            let queryPredicate = predicate;
+
+            queryPredicate.deleted = false;
 
             MongoClient.connect(getMySelf().getConnectString(tenantId))
                 .then((db) => {
                     dbConnection = db;
 
-                    return dbConnection.collection(getMySelf().COLLECTIONNAME).find(predicate).sort(sortCriteria).toArray();
+                    return dbConnection.collection(getMySelf().COLLECTIONNAME).find(queryPredicate).sort(sortCriteria).toArray();
                 })
                 .then((docs) => {
                     dbConnection.close();
@@ -96,6 +98,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         // TODO2 PK testen und ggf. erneut erzeugen, oder die ObjectId nutzen?
         thisRow.id = thisRow.id || uuid.v4();
         thisRow.auditRecord = getMySelf().getAuditData(0);
+        thisRow.deleted = false;
 
         return new Promise((fulfill, reject) => {
             if (!tenantId) { throw new Error("missing TenantID"); };
@@ -213,6 +216,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
 
         let dbConnection: Db;
         let queryPredicate = { id: thisRow.id };
+        thisRow.deleted = false;
 
         return new Promise((fulfill, reject) => {
             if (!tenantId) { throw new Error("missing TenantID"); };
