@@ -20,14 +20,13 @@ export class RestAppServerBase {
     protected static logger: ITurboLogger;
 
     // Feature Flag, ob  mit Authentifizierung laufen soll
-    protected useAuthentication = true;
     protected thisServer: express.Application;
 
     private isDevelopment: boolean;
     private confListenPort: string;
     private env: string;
 
-    constructor(protected appController, useLogger: ITurboLogger, doUseAuthentication: boolean = true) {
+    constructor(protected appController, useLogger: ITurboLogger) {
         RestAppServerBase.logger = useLogger;
         RestAppServerBase.logger.svc.debug("constructor() entry");
 

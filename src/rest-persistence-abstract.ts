@@ -27,6 +27,7 @@ export abstract class RestPersistenceAbstract {
         RestPersistenceAbstract.logger.svc.info(`CONF_DB_USERPASSWORD: ${this.dbUserPassword ? "***" : "null"}`);
     }
 
+    public abstract doQBE<T extends IRestPayloadBase>(predicate, sortCriteria, tenantId: string, getMySelf): Promise<T>;
     public abstract doGet<T extends IRestPayloadBase>(idIn: string, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
     public abstract doInsert<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
     public abstract doDelete<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;

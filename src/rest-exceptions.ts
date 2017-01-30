@@ -28,6 +28,7 @@ export namespace RestExceptions {
 
         constructor(private notFoundId: string) {
             super();
+            // TODO: für QBE anderen Text
             this.message = `Keinen Datensatz mit der ID ${notFoundId} gefunden. Aktualisieren Sie bitte die Ansicht.`;
         };
 

@@ -28,9 +28,8 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         }
     }
 
-    // das wird derr Knackpunkt...
-    // deleted === true ausblenden
-    public doQBE<T extends IRestPayloadBase>(predicate, tenantId: string, getMySelf): Promise<T> {
+    // TODO deleted === true ausblenden
+    public doQBE<T extends IRestPayloadBase>(predicate, sortCriteria, tenantId: string, getMySelf): Promise<T> {
         RestPersistenceAbstract.logger.svc.debug(`doQBE ${getMySelf().COLLECTIONNAME} ("${predicate}", "${tenantId}")`);
 
         return new Promise((fulfill, reject) => {
@@ -42,8 +41,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                 .then((db) => {
                     dbConnection = db;
 
-                    // TODO auch Sortierung aus Parameter
-                    return dbConnection.collection(getMySelf().COLLECTIONNAME).find(predicate).sort({ name: 1, billing_adr_ort: 1 }).toArray();
+                    return dbConnection.collection(getMySelf().COLLECTIONNAME).find(predicate).sort(sortCriteria).toArray();
                 })
                 .then((docs) => {
                     dbConnection.close();
