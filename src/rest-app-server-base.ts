@@ -5,7 +5,8 @@ import * as reqlogger from "morgan";
 
 import { IRestPayloadBase } from "./i-rest-payload-base";
 import { ITurboLogger } from "./i-turbo-logger";
-import { RestExceptions as RestExceptions } from "./rest-exceptions";
+
+import { RestExceptionBase } from "./rest-exception-base";
 
 /**
  * @class        BaseAppRestServer
@@ -18,6 +19,19 @@ import { RestExceptions as RestExceptions } from "./rest-exceptions";
  */
 export class RestAppServerBase {
     protected static logger: ITurboLogger;
+
+    /**
+     * @function ServerErrorResponse
+     * @description Einen Fehler (Exception) als HTTP-Resonse Internen Serverfehler zurück liefern; HTTP-500
+     */
+    protected static ServerErrorResponse(msg: string, stacktrace: string, res: express.Response): express.Response {
+        RestAppServerBase.logger.svc.error(`Error-500 Msg:"${msg}" Stack="${stacktrace}"`);
+
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        res.write(`Exception ${msg}: ${stacktrace}`);
+        res.end();
+        return (res);
+    }
 
     // Feature Flag, ob  mit Authentifizierung laufen soll
     protected thisServer: express.Application;
@@ -154,10 +168,10 @@ export class RestAppServerBase {
             })
             .catch((err) => {
                 RestAppServerBase.logger.svc.error(`Error="${err.stack}"`);
-                if (err instanceof RestExceptions.TdRestException) {
+                if (err instanceof RestExceptionBase) {
                     res = err.giveResponse(res);
                 } else {
-                    res = RestExceptions.ServerErrorResponse(err.message, err.stack, res);
+                    res = RestAppServerBase.ServerErrorResponse(err.message, err.stack, res);
 
                 }
             });

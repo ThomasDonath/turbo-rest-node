@@ -3,7 +3,6 @@
 import * as loggerLib from "winston";
 
 import { RestAppServerBase } from "./rest-app-server-base";
-import { RestExceptions as RestExceptions } from "./rest-exceptions";
 
 import { ITestPayload } from "./i-testpayload";
 import { ITurboLogger } from "./i-turbo-logger";

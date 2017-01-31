@@ -3,8 +3,12 @@ import * as uuid from "uuid";
 
 import { IRestPayloadBase } from "./i-rest-payload-base";
 import { ITurboLogger } from "./i-turbo-logger";
-import { RestExceptions } from "./rest-exceptions";
 import { RestPersistenceAbstract } from "./rest-persistence-abstract";
+
+import { RecordExistsAlready } from "./record-already-exists";
+import { RecordChangedByAnotherUser } from "./record-changed-by-another-user";
+import { RecordNotFound } from "./record-not-found";
+import { TooManyRows } from "./too-many-rows";
 
 export class RestPersistenceMongo extends RestPersistenceAbstract {
     private static dontCheckIndexes: boolean = false;
@@ -78,8 +82,8 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     dbConnection.close();
                     let result: T;
 
-                    if (docs.length === 0) { throw (new RestExceptions.RecordNotFound(idIn)); }
-                    if (docs.length > 1) { throw (new RestExceptions.TooManyRows(idIn)); }
+                    if (docs.length === 0) { throw new RecordNotFound(idIn); }
+                    if (docs.length > 1) { throw new TooManyRows(idIn); }
 
                     result = docs[0];
                     fulfill(result);
@@ -138,7 +142,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                 })
                 .catch((err) => {
                     if ((err.name === "MongoError") && (err.code === 11000) && (err.driver)) {
-                        throw (new RestExceptions.RecordExistsAlready(thisRow.auditRecord.changedAt, thisRow.auditRecord.changedBy));
+                        throw new RecordExistsAlready(thisRow.auditRecord.changedAt, thisRow.auditRecord.changedBy);
                     } else {
                         // weiß nicht, ob der Fehlercode stimmt
                         RestPersistenceAbstract.logger.svc.warn("create duplicate index(?) errcode ${err.code}");
@@ -167,7 +171,6 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
             if (!tenantId) { throw new Error("missing TenantID"); };
 
             let dbConnection: Db;
-            let queryPredicate = { id: thisRow.id };
 
             let rowVersionNumber = getMySelf().getRowVersionNumber(thisRow.auditRecord);
 
@@ -175,32 +178,38 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                 .then((db) => {
                     dbConnection = db;
 
-                    return dbConnection.collection(getMySelf().COLLECTIONNAME).find(queryPredicate).toArray();
-                })
-                .then((oldRows: T[]) => {
-                    let oldRow: T;
-
-                    if (oldRows.length === 0) { throw (new RestExceptions.RecordNotFound(thisRow.id)); }
-                    if (oldRows.length > 1) { throw (new RestExceptions.TooManyRows(thisRow.id)); }
-
-                    oldRow = oldRows[0];
-
-                    if (!noLock && (oldRow.auditRecord.rowVersion !== rowVersionNumber)) {
-                        throw (new RestExceptions.RecordChangedByAnotherUser(thisRow.id, oldRow.auditRecord.changedAt, oldRow.auditRecord.changedBy));
+                    let queryPredicate;
+                    let orgRowVersion = thisRow.auditRecord.rowVersion;
+                    if (noLock) {
+                        queryPredicate = { id: thisRow.id };
+                    } else {
+                        queryPredicate = { "id": thisRow.id, "auditRecord.rowVersion": orgRowVersion };
                     }
 
-                    thisRow.auditRecord = getMySelf().getAuditData(oldRow.auditRecord.rowVersion);
+                    thisRow.auditRecord = getMySelf().getAuditData(thisRow.auditRecord.rowVersion);
 
-                    // TODO oder findAndReplaceOne - weil im find oben gibt keinen Lock - mit  findAndReplaceOne könnte RowVersion geprüft werden - Rollback?
                     if (getMySelf().doMarkDeleted) {
                         thisRow.deleted = true;
                         return dbConnection.collection(getMySelf().COLLECTIONNAME).replaceOne(queryPredicate, thisRow);
                     } else {
                         return dbConnection.collection(getMySelf().COLLECTIONNAME).deleteOne(queryPredicate);
                     }
+
                 })
-                .then(() => {
+                .then((result) => {
                     dbConnection.close();
+
+                    if (!noLock) {
+                        if (getMySelf().doMarkDeleted) {
+                            if (result.matchedCount === 0) {
+                                throw new RecordChangedByAnotherUser(thisRow.id);
+                            }
+                        } else {
+                            if (result.deletedCount === 0) {
+                                throw new RecordChangedByAnotherUser(thisRow.id);
+                            }
+                        }
+                    }
                     fulfill(thisRow);
                 })
                 .catch((err) => {
@@ -215,8 +224,6 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         RestPersistenceAbstract.logger.svc.debug(`update ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}")`);
 
         let dbConnection: Db;
-        let queryPredicate = { id: thisRow.id };
-        thisRow.deleted = false;
 
         return new Promise((fulfill, reject) => {
             if (!tenantId) { throw new Error("missing TenantID"); };
@@ -227,26 +234,20 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                 .then((db) => {
                     dbConnection = db;
 
-                    return dbConnection.collection(getMySelf().COLLECTIONNAME).find(queryPredicate).toArray();
-                })
-                .then((oldRows: T[]) => {
-                    let oldRow: T;
+                    let orgRowVersion = thisRow.auditRecord.rowVersion;
+                    let queryPredicate = { "id": thisRow.id, "auditRecord.rowVersion": orgRowVersion };
 
-                    if (oldRows.length === 0) { throw (new RestExceptions.RecordNotFound(thisRow.id)); }
-                    if (oldRows.length > 1) { throw (new RestExceptions.TooManyRows(thisRow.id)); }
+                    thisRow.auditRecord = getMySelf().getAuditData(thisRow.auditRecord.rowVersion);
+                    thisRow.deleted = false;
 
-                    oldRow = oldRows[0];
-                    if (!(oldRow.auditRecord.rowVersion === rowVersionNumber)) {
-                        throw (new RestExceptions.RecordChangedByAnotherUser(thisRow.id, oldRow.auditRecord.changedAt, oldRow.auditRecord.changedBy));
-                    }
-
-                    thisRow.auditRecord = getMySelf().getAuditData(oldRow.auditRecord.rowVersion);
-
-                    // TODO oder findAndReplaceOne - weil im find oben gibt keinen Lock - mit  findAndReplaceOne könnte RowVersion geprüft werden - Rollback?
                     return (dbConnection.collection(getMySelf().COLLECTIONNAME).replaceOne(queryPredicate, thisRow));
                 })
-                .then(() => {
+                .then((result) => {
                     dbConnection.close();
+
+                    if (result.matchedCount === 0) {
+                        throw new RecordChangedByAnotherUser(thisRow.id);
+                    }
                     fulfill(thisRow);
                 })
                 .catch((err) => {

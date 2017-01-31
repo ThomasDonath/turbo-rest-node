@@ -7,6 +7,12 @@
 
 export { RestAppServerBase } from "./rest-app-server-base";
 export { IRestPayloadBase } from "./i-rest-payload-base";
-export { RestExceptions } from "./rest-exceptions";
 export { RestPersistenceMongo } from "./rest-persistence-mongo";
 export { ITurboLogger } from "./i-turbo-logger";
+
+export { RestExceptionBase } from "./rest-exception-base";
+export { RecordChangedByAnotherUser } from "./record-changed-by-another-user";
+export { RecordNotFound } from "./record-not-found";
+export { TooManyRows } from "./too-many-rows";
+export { RecordExistsAlready } from "./record-already-exists";
+export { NotNullViolated } from "./not-null-violated";
