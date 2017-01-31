@@ -11,7 +11,6 @@ import { RecordNotFound } from "./record-not-found";
 import { TooManyRows } from "./too-many-rows";
 
 export class RestPersistenceMongo extends RestPersistenceAbstract {
-    private static dontCheckIndexes: boolean = false;
 
     protected dbHostNamePort: string;
     protected dbUsername: string;
@@ -19,6 +18,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
 
     protected dbMongoUrl: String;
     private dbMongoOptions: String;
+    private dontCheckIndexes: boolean = false;
 
     constructor(protected useAuthentication: boolean = true, private COLLECTIONNAME: string, useLogger: ITurboLogger, private doMarkDeleted = true) {
         super(useAuthentication, useLogger);
@@ -113,9 +113,9 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                 .then((db) => {
                     dbConnection = db;
 
-                    if (!RestPersistenceMongo.dontCheckIndexes) {
+                    if (!getMySelf().dontCheckIndexes) {
                         doCreateIndex = true;
-                        RestPersistenceMongo.dontCheckIndexes = true;
+                        getMySelf().dontCheckIndexes = true;
                         return (dbConnection.collection(getMySelf().COLLECTIONNAME).count({}));
                     } else {
                         return new Promise((ff) => {
