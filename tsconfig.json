@@ -1,7 +1,7 @@
 {
     "extends": "../tsconfig-global-node.json",
     "compilerOptions": {
-        "outDir": "./dist/",
+        "outDir": "./lib/",
         "rootDir": "./src"
     },
     "include": [

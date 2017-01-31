@@ -1,14 +1,14 @@
-build: 
+build:
 
 npm:
 	rm -rf node_modules/* || true
 	npm install
 
 clean:
-	rm -r dist/* || true
+	rm -r lib/* || true
 
-lint: 
-	npm run lint    
+lint:
+	npm run lint
 
 build: clean lint
 	npm run build

@@ -67,7 +67,6 @@ export class RestAppServerBase {
         RestAppServerBase.logger.svc.debug("main() exit");
     }
 
-    // TODO getAuthentication() ist noch zu implementieren
     /**
      * @function getAuthentication
      * @description Express-Middleware-Handler, um die Authentifizierung und den Mandanten aus dem Request abzuleiten. Wird in den Routern der abgeleiteten Klassen aufgerufen

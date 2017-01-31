@@ -1,8 +1,6 @@
 import * as express from "express";
 import { RestExceptionBase } from "./rest-exception-base";
 
-// TODO mehrsprachig!
-
 /**
  * @class NotNullViolated
  * @description Ein Pflicht-Attribut ist leer; HTTP-403

@@ -35,11 +35,16 @@ Konzept Genric Handler: https://visualstudiomagazine.com/articles/2015/09/01/man
 
 ## Generell offene Aufgaben (TODO Teilprojekt) ##
 
-1. Packen und in der GP-API ausprobieren
-2. Persistence Manager analog dem API-Server
-3. Logging mit Winston: Timestamp und Quelle setzen; Request-ID, dynamisces Log Level!
-4. siehe Issues
-5. Tests
+* nach GitHub (package.json anpassen) und NPM
+* JavaDoc in allen Files und in englisch
+* Test für die Kombinationen: noLock | markDeleted; siehe: <https://ian_lin.gitbooks.io/javascript-testing/content/chapter6.html> als Testsuite ausführen(?)
+* Formatierung Logger (Timestamp + Quelle, Re)quest-ID (ECID), Per-Request-Logging, Log Level zur Laufzeit setzen?
+* Authentifizierung: Die Middleware wird bereits aufgerufen, muss aber noch ausprogrammiert werden. Ziel ist, ein JWT vom Client zu kriegen, dieses zu verifizieren und daraus den Mandanten abzuleiten.
+* echten Usernamen (aus Authentifizierung) in den AuditRecord schreiben (RestPersistenceAbstract.getAuditData)
+* Security: check/add Helmet, Express-validation See <https://github.com/KunalKapadia/express-mongoose-es6-rest-api?utm_source=microserviceweekly.com&utm_medium=email>
+* *später*
+* Löschen: => neue Methode queryAll (als "Papierkorb" im UI) und PapierkorbLeeren()
+* alle Texte (insbes. Exceptions mehrsprachig)
+* Logging als Aspekt
 
-testen: curl -v localhost:8080/api/testp/12;curl -v localhost:8080/api/testq?id=123
-
+* siehe Issues

@@ -99,7 +99,6 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
     public doInsert<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceMongo): Promise<T> {
         RestPersistenceAbstract.logger.svc.debug(`insert ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}")`);
 
-        // TODO2 PK testen und ggf. erneut erzeugen, oder die ObjectId nutzen?
         thisRow.id = thisRow.id || uuid.v4();
         thisRow.auditRecord = getMySelf().getAuditData(0);
         thisRow.deleted = false;

@@ -1,7 +1,7 @@
 {
-  "name": "td-rest-server",
-  "description": "Basisimplementierung für REST Server mit NODE.JS und Express",
-  "version": "0.12.1",
+  "name": "turbo-rest-node",
+  "description": "base to implement REST with Node.js and Express",
+  "version": "0.14.1",
   "repository": {
     "type": "git",
     "url": "https://bitbucket.org/thomasdonathcom/hww-tdrestserver"
@@ -10,13 +10,13 @@
     "name": "ThomDo",
     "email": "td@thomasdonath.com"
   },
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "scripts": {
     "build": "tsc",
     "lint": "tslint \"src/**/*.ts\""
   },
-  "private": true,
+  "private": false,
   "dependencies": {
     "body-parser": "^1.16.0",
     "winston": "^2.3.1",
