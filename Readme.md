@@ -30,8 +30,7 @@ zum debuggen kann die Ausgabe mit export DEBUG="AppRestServer" aktiviert werden.
 
 Einen dedizierten Test habe ich (noch) nicht - wird mit dem Integrationstest der api.geschaeftspartner getestet.
 
-Konzept Genric Handler: https://visualstudiomagazine.com/articles/2015/09/01/managing-functions-in-typescript.aspx
-
+Konzept Genric Handler: <https://visualstudiomagazine.com/articles/2015/09/01/managing-functions-in-typescript.aspx>
 
 ## Generell offene Aufgaben (TODO Teilprojekt) ##
 
@@ -41,8 +40,10 @@ Konzept Genric Handler: https://visualstudiomagazine.com/articles/2015/09/01/man
 * Formatierung Logger (Timestamp + Quelle, Re)quest-ID (ECID), Per-Request-Logging, Log Level zur Laufzeit setzen?
 * Authentifizierung: Die Middleware wird bereits aufgerufen, muss aber noch ausprogrammiert werden. Ziel ist, ein JWT vom Client zu kriegen, dieses zu verifizieren und daraus den Mandanten abzuleiten.
 * echten Usernamen (aus Authentifizierung) in den AuditRecord schreiben (RestPersistenceAbstract.getAuditData)
+* für alle DML wenn das Format nicht passt (JSON-Parse Fehler fängt Express ab - Pflichtfelder muss ich selber testen) ebenso, wenn der Body kein JSON sein sollte(?)
 * Security: check/add Helmet, Express-validation See <https://github.com/KunalKapadia/express-mongoose-es6-rest-api?utm_source=microserviceweekly.com&utm_medium=email>
 * *später*
+* Das "Connection holen" in eine Funktion auslagern; diese Funktion könnte Connections je Mandant vorhalten (FIFO-Array(10))
 * Löschen: => neue Methode queryAll (als "Papierkorb" im UI) und PapierkorbLeeren()
 * alle Texte (insbes. Exceptions mehrsprachig)
 * Logging als Aspekt
