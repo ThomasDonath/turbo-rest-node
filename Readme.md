@@ -34,6 +34,7 @@ Konzept Genric Handler: <https://visualstudiomagazine.com/articles/2015/09/01/ma
 
 ## Generell offene Aufgaben (TODO Teilprojekt) ##
 
+* Pagination und max. Rows in Get + Qbe
 * nach GitHub (package.json anpassen) und NPM (dann GitHub auch in WordPress und XING verlinken)
 * JavaDoc in allen Files und in englisch
 * Test für die Kombinationen: noLock | markDeleted; siehe: <https://ian_lin.gitbooks.io/javascript-testing/content/chapter6.html> als Testsuite ausführen(?)
