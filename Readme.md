@@ -34,9 +34,10 @@ Konzept Genric Handler: <https://visualstudiomagazine.com/articles/2015/09/01/ma
 
 ## Generell offene Aufgaben (TODO Teilprojekt) ##
 
-* Pagination und max. Rows in Get + Qbe
+* Pagination und max. Rows in Get + Qbe (skip+limit)
+* wird der Index trotz ...data - Struktur benutzt?
 * nach GitHub (package.json anpassen) und NPM (dann GitHub auch in WordPress und XING verlinken)
-* JavaDoc in allen Files und in englisch
+* JavaDoc in allen Files und in englisch - reviewen!
 * Test für die Kombinationen: noLock | markDeleted; siehe: <https://ian_lin.gitbooks.io/javascript-testing/content/chapter6.html> als Testsuite ausführen(?)
 * Formatierung Logger (Timestamp + Quelle, Re)quest-ID (ECID), Per-Request-Logging, Log Level zur Laufzeit setzen?
 * Authentifizierung: Die Middleware wird bereits aufgerufen, muss aber noch ausprogrammiert werden. Ziel ist, ein JWT vom Client zu kriegen, dieses zu verifizieren und daraus den Mandanten abzuleiten.
@@ -46,7 +47,4 @@ Konzept Genric Handler: <https://visualstudiomagazine.com/articles/2015/09/01/ma
 * *später*
 * Das "Connection holen" in eine Funktion auslagern; diese Funktion könnte Connections je Mandant vorhalten (FIFO-Array(10))
 * Löschen: => neue Methode queryAll (als "Papierkorb" im UI) und PapierkorbLeeren()
-* alle Texte (insbes. Exceptions mehrsprachig)
 * Logging als Aspekt
-
-* siehe Issues

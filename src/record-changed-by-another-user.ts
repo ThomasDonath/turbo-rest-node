@@ -3,25 +3,14 @@ import { RestExceptionBase } from "./rest-exception-base";
 
 /**
  * @class RecordChangedByAnotherUser
- * @description Der Datensatz in der DB hat eine andere Row-Version, als der im Request; HTTP-409
+ * @description Exception: a record to be changed was modified inbetween by another user - has another row version in the database as in payload
  */
 export class RecordChangedByAnotherUser extends RestExceptionBase {
-    public name: string = "RecordChangedByAnotherUser";
-    public message: string;
-
     constructor(private notFoundId: string) {
-        super();
-        this.message =
-            `Der Datensatz mit der ID ${notFoundId} wurde zwischenzeitlich geändert. ` +
-            `Aktualisieren Sie bitte die Ansicht und wiederholen Sie die Änderung.`;
+        super("RecordChangedByAnotherUser",
+            `Record with ID ${notFoundId} was changed by another user inbetween. So it has another row version as in payload.
+             User should refresh the view and repeat the change.`,
+            409);
+        this.additionalProperties.id = notFoundId;
     };
-
-    public toString() { return (`Exception ${this.name}: ${this.message}`); };
-
-    public giveResponse(res: express.Response): express.Response {
-        res.writeHead(409, { "Content-Type": "text/plain" });
-        res.write(this.message);
-        res.end();
-        return (res);
-    }
 };

@@ -9,20 +9,20 @@ import { ITurboLogger } from "./i-turbo-logger";
 import { RestExceptionBase } from "./rest-exception-base";
 
 /**
- * @class        BaseAppRestServer
- * @description  die Basisklasse für den REST Server, liest Environment für die Konfiguration
+ * @class RestAppServerBase
+ * @description Base Class for my Node.js Express server. resonsible for
+ *              * get configuration from the environment:
  *                 - CONF_LISTEN_PORT       (8080)
- *                 - CONF_MONGO_SERVER_PORT (localhost:27017)
  *                 - NODE_ENV               (development)
- *               Konfig für MongoDB-Athentifizierung ist im Constructor hard-coded (mongoUrl)
- *               wenn Mode = dev, dann werden die Requests und Responses auf die Konsole geschrieben (Morgan Lib)
+ *              * handling all the HTTP request/response stuff, so we can use a controller with pure JSON in/output
+ *              * does logging
  */
 export class RestAppServerBase {
     protected static logger: ITurboLogger;
 
     /**
      * @function ServerErrorResponse
-     * @description Einen Fehler (Exception) als HTTP-Resonse Internen Serverfehler zurück liefern; HTTP-500
+     * @description return an error message and stacktrace as HTTP-500 response
      */
     protected static ServerErrorResponse(msg: string, stacktrace: string, res: express.Response): express.Response {
         RestAppServerBase.logger.svc.error(`Error-500 Msg:"${msg}" Stack="${stacktrace}"`);
@@ -33,13 +33,15 @@ export class RestAppServerBase {
         return (res);
     }
 
-    // Feature Flag, ob  mit Authentifizierung laufen soll
     protected thisServer: express.Application;
 
     private isDevelopment: boolean;
     private confListenPort: string;
     private env: string;
-
+    /**
+     * @constructor
+     * @description inject a controller and logger
+     */
     constructor(protected appController, useLogger: ITurboLogger) {
         RestAppServerBase.logger = useLogger;
         RestAppServerBase.logger.svc.debug("constructor() entry");
@@ -54,6 +56,10 @@ export class RestAppServerBase {
         RestAppServerBase.logger.svc.debug("constructor exit");
     }
 
+    /**
+     * @function main
+     * @description has to be called as entrypoint from Node.js to run the server instance
+     */
     public main() {
         RestAppServerBase.logger.svc.debug("main() entry");
 
@@ -69,7 +75,7 @@ export class RestAppServerBase {
 
     /**
      * @function getAuthentication
-     * @description Express-Middleware-Handler, um die Authentifizierung und den Mandanten aus dem Request abzuleiten. Wird in den Routern der abgeleiteten Klassen aufgerufen
+     * @description Express middleware handler to get user, authentication and tenant from the request
      */
     protected getAuthentication(req: express.Request, res: express.Response, next) {
         RestAppServerBase.logger.svc.debug("getAuthentication() entry");
@@ -82,37 +88,63 @@ export class RestAppServerBase {
 
     /**
      * @function getDemoTenant
-     * @description Express-Middleware-Handler, um den Mandanten für die Test-/Demodaten zu setzen
+     * @description Express middleware handler to get DEMO or TEST tenant
      */
     protected getDemoTenant(req: express.Request, res: express.Response, next) {
         req.params.tenant = "demo";
         next();
     }
 
-    // eine URL mit ihrer Methode und ihrem Handler verknüpfen
-    protected addHandlerGet(inUrl: string, inMethodeRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
+    /**
+     * @function addHandlerGet
+     * @description map an URL with verb GET to a method from the injected application controller
+     * @param inUrl URL to be mapped
+     * @param inMethodRef reference to method from application controller with the given signature (request and a reference to the application controller instance)
+     */
+    protected addHandlerGet(inUrl: string, inMethodRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
         this.thisServer.get(inUrl, this.getAuthentication, (req: express.Request, res: express.Response) => {
-            this.genericHandler(req, res, inMethodeRef, () => this.appController, 200);
+            this.genericHandler(req, res, inMethodRef, () => this.appController, 200);
         });
     }
-    protected addHandlerPut(inUrl: string, inMethodeRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
+    /**
+     * @function addHandlerPut
+     * @description map an URL with verb PUT to a method from the injected application controller
+     * @param inUrl URL to be mapped
+     * @param inMethodRef reference to method from application controller with the given signature (request and a reference to the application controller instance)
+     */
+    protected addHandlerPut(inUrl: string, inMethodRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
         this.thisServer.put(inUrl, this.getAuthentication, (req, res) => {
-            this.genericHandler(req, res, inMethodeRef, () => this.appController, 200);
+            this.genericHandler(req, res, inMethodRef, () => this.appController, 200);
         });
     }
-    protected addHandlerPost(inUrl: string, inMethodeRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
+    /**
+     * @function addHandlerPost
+     * @description map an URL with verb POST to a method from the injected application controller
+     * @param inUrl URL to be mapped
+     * @param inMethodRef reference to method from application controller with the given signature (request and a reference to the application controller instance)
+     */
+    protected addHandlerPost(inUrl: string, inMethodRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
         this.thisServer.post(inUrl, this.getAuthentication, (req: express.Request, res: express.Response) => {
-            this.genericHandler(req, res, inMethodeRef, () => this.appController, 201);
+            this.genericHandler(req, res, inMethodRef, () => this.appController, 201);
         });
     }
-    protected addHandlerDelete(inUrl: string, inMethodeRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
+    /**
+     * @function addHandlerDelete
+     * @description map an URL with verb DELET to a method from the injected application controller
+     * @param inUrl URL to be mapped
+     * @param inMethodRef reference to method from application controller with the given signature (request and a reference to the application controller instance)
+     */
+    protected addHandlerDelete(inUrl: string, inMethodRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
         this.thisServer.delete(inUrl, this.getAuthentication, (req: express.Request, res: express.Response) => {
-            this.genericHandler(req, res, inMethodeRef, () => this.appController, 200);
+            this.genericHandler(req, res, inMethodRef, () => this.appController, 200);
         });
     }
-
+    /**
+     * @function configRoutes
+     * @description an (abstract) method to be filled out in the overloading class with calls to addHandlerXYZ, will be called during configuration of the server instance
+     */
     protected configRoutes() {
-        RestAppServerBase.logger.svc.warn("configRoutes(): sollte überladen sein!");
+        RestAppServerBase.logger.svc.warn("configRoutes(): !!! should be overloaded !!!");
     }
 
     private configServer() {
@@ -135,10 +167,10 @@ export class RestAppServerBase {
         RestAppServerBase.logger.svc.debug("configMiddleware() entry");
 
         if (this.isDevelopment) {
-            // alle Requests und Resonses ausgeben
+            // write all requests and responses to log (Morgan Library)
             this.thisServer.use(reqlogger("dev"));
 
-            // Cross Site Requests erlauben
+            // Allow Cross Site Requests
             this.thisServer.use((req, res, next) => {
                 res.header("Access-Control-Allow-Origin", "*");
                 res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -149,7 +181,11 @@ export class RestAppServerBase {
         RestAppServerBase.logger.svc.debug("configMiddleware() exit");
     }
 
-    // generischer URL-Handler, der die Controller-Methode nach HTTP umsetzt
+    /*
+     * @function genericHandler
+     * @description wrap the handling/transformation and error handling for HTTP from/to JSON and call the mapped method
+     * from application controller. It was mapped in configRoutes with a call to addHandlerXYZ.
+    */
     private genericHandler = (
         req: express.Request,
         res: express.Response,

@@ -1,8 +1,8 @@
 
 /**
- * @module          TdRestServer
- * @description     Basis für einen REST-Server aufbauend auf Express  inkl. Konfiguration des Servers via Environment und Logging sowie Exceptions und deren Fehlerbehandlung
- * @author          td@thomasdonath.com
+ * @module TurboRestNode
+ * @description base to implement a lightweight REST server with Node.js/Express. Includes configuration via environment, logging, exceptions, error handling and persistence (Mongo for now)
+ * @author td@thomasdonath.com
  */
 
 export { RestAppServerBase } from "./rest-app-server-base";

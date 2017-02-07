@@ -3,23 +3,12 @@ import { RestExceptionBase } from "./rest-exception-base";
 
 /**
  * @class RecordExistsAlready
- * @description Der Datensatz existiert bereits; HTTP-409
+ * @description Exception: a record with the value for primary or unique key do exists already
  */
 export class RecordExistsAlready extends RestExceptionBase {
-    public name: string = "RecordExistsAlready";
-    public message: string;
-
-    constructor(changedAt: Date, changedBy: string) {
-        super();
-        this.message = `Dieser Datensatz existiert bereits. Eingfügt bzw. zuletzt geändert: ${changedAt.toLocaleString()} durch ${changedBy}.`;
+    constructor(inChangedAt: Date, inChangedBy: string) {
+        super("RecordExistsAlready", `A record with the same primary or unique key value already exists. Inserted or last change at ${inChangedAt.toLocaleString()} by ${inChangedBy}.`, 409);
+        this.additionalProperties.changedAt = inChangedAt;
+        this.additionalProperties.changedby = inChangedBy;
     };
-
-    public toString() { return (`Exception ${this.name}: ${this.message}`); };
-
-    public giveResponse(res: express.Response): express.Response {
-        res.writeHead(409, { "Content-Type": "text/plain" });
-        res.write(this.message);
-        res.end();
-        return (res);
-    }
 };

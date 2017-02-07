@@ -1,25 +1,15 @@
 import * as express from "express";
+
 import { RestExceptionBase } from "./rest-exception-base";
 
 /**
  * @class NotNullViolated
- * @description Ein Pflicht-Attribut ist leer; HTTP-403
+ * @description Exception: a mandantory property is empty in payload
  */
 export class NotNullViolated extends RestExceptionBase {
-    public name: string = "NotNullViolated";
-    public message: string;
 
     constructor(objectName: string) {
-        super();
-        this.message = `Pflichtangaben in ${objectName} fehlen.`;
+        super("NotNullViolated", `at least one mandantory property for ${objectName} is empty or not given`, 403);
+        this.additionalProperties.objectName = objectName;
     };
-
-    public toString() { return (`Exception ${this.name}: ${this.message}`); };
-
-    public giveResponse(res: express.Response): express.Response {
-        res.writeHead(403, { "Content-Type": "text/plain" });
-        res.write(this.message);
-        res.end();
-        return (res);
-    }
 };

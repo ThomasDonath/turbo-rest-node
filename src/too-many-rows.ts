@@ -3,23 +3,11 @@ import { RestExceptionBase } from "./rest-exception-base";
 
 /**
  * @class TooManyRows
- * @description Mehr als einen Datensatz zur ID gefunden; HTTP-501
+ * @description Exception: more than one row found for a primary key value (have to be unique)
  */
 export class TooManyRows extends RestExceptionBase {
-    public name: string = "TooManyRows";
-    public message: string;
-
     constructor(private notFoundId: string) {
-        super();
-        this.message = `Mehr als einen Datensatz mit der ID ${notFoundId} gefunden. Aktualisieren Sie bitte die Ansicht.`;
+        super("TooManyRows", `Found more than one row for the given ID ${notFoundId} (unique primary key value). Most often an internal error`, 501);
+        this.additionalProperties.id = notFoundId;
     };
-
-    public toString() { return (`Exception ${this.name}: ${this.message}`); };
-
-    public giveResponse(res: express.Response): express.Response {
-        res.writeHead(501, { "Content-Type": "text/plain" });
-        res.write(this.message);
-        res.end();
-        return (res);
-    }
 };

@@ -5,6 +5,7 @@ import { IRestPayloadBase } from "./i-rest-payload-base";
 import { ITurboLogger } from "./i-turbo-logger";
 import { RestPersistenceAbstract } from "./rest-persistence-abstract";
 
+import { MissingTenantId } from "./missing-tenant-id";
 import { RecordExistsAlready } from "./record-already-exists";
 import { RecordChangedByAnotherUser } from "./record-changed-by-another-user";
 import { RecordNotFound } from "./record-not-found";
@@ -36,7 +37,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         RestPersistenceAbstract.logger.svc.debug(`doQBE ${getMySelf().COLLECTIONNAME} ("${predicate}", "${tenantId}")`);
 
         return new Promise((fulfill, reject) => {
-            if (!tenantId) { throw new Error("Missing TenantID"); };
+            if (!tenantId) { throw new MissingTenantId(); };
 
             let dbConnection: Db;
             let queryPredicate = predicate;
@@ -64,7 +65,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         RestPersistenceAbstract.logger.svc.debug(`get ${getMySelf().COLLECTIONNAME} ("${idIn}", "${tenantId}")`);
 
         return new Promise((fulfill, reject) => {
-            if (!tenantId) { throw new Error("Missing TenantID"); };
+            if (!tenantId) { throw new MissingTenantId(); };
 
             let dbConnection: Db;
             let thisId = idIn;
@@ -104,7 +105,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         thisRow.deleted = false;
 
         return new Promise((fulfill, reject) => {
-            if (!tenantId) { throw new Error("missing TenantID"); };
+            if (!tenantId) { throw new MissingTenantId(); };
 
             let dbConnection: Db;
             let doCreateIndex: boolean = false;
@@ -143,7 +144,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     if ((err.name === "MongoError") && (err.code === 11000) && (err.driver)) {
                         throw new RecordExistsAlready(thisRow.auditRecord.changedAt, thisRow.auditRecord.changedBy);
                     } else {
-                        // weiß nicht, ob der Fehlercode stimmt
+                        // not sure if this the right error code for an index that already exist
                         RestPersistenceAbstract.logger.svc.warn("create duplicate index(?) errcode ${err.code}");
 
                         if (!((err.name === "MongoError") && (err.code === 11000) && (err.driver))) {
@@ -162,12 +163,16 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                 });
         });
     }
-
+    /**
+     * @function doDelete
+     * @description @see RestPersistenceAbstract.doDelete
+     * @param noLock sometimes we want to delete rows no matter of read consistence. then we pass TRUE here
+     */
     public doDelete<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceMongo, noLock: boolean = false): Promise<T> {
         RestPersistenceAbstract.logger.svc.debug(`delete ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}")`);
 
         return new Promise((fulfill, reject) => {
-            if (!tenantId) { throw new Error("missing TenantID"); };
+            if (!tenantId) { throw new MissingTenantId(); };
 
             let dbConnection: Db;
 
@@ -225,7 +230,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         let dbConnection: Db;
 
         return new Promise((fulfill, reject) => {
-            if (!tenantId) { throw new Error("missing TenantID"); };
+            if (!tenantId) { throw new MissingTenantId(); };
 
             let rowVersionNumber = getMySelf().getRowVersionNumber(thisRow.auditRecord);
 
