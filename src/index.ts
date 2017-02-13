@@ -9,6 +9,7 @@ export { RestAppServerBase } from "./rest-app-server-base";
 export { IRestPayloadBase } from "./i-rest-payload-base";
 export { RestPersistenceMongo } from "./rest-persistence-mongo";
 export { ITurboLogger } from "./i-turbo-logger";
+export { RestAppControllerAbstract } from "./rest-app-controller-abstract";
 
 export { RestExceptionBase } from "./rest-exception-base";
 export { RecordChangedByAnotherUser } from "./record-changed-by-another-user";
