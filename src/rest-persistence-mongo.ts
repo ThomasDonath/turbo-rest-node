@@ -126,7 +126,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         thisRow.tenantId = tenantId;
 
         return new Promise((fulfill, reject) => {
-            if (!tenantId) { throw new MissingTenantId(); };
+            if (!thisRow.tenantId) { throw new MissingTenantId(); };
 
             let dbConnection: Db;
             let doCreateIndex: boolean = false;
@@ -264,6 +264,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
 
                     thisRow.auditRecord = getMySelf().getAuditData(thisRow.auditRecord.rowVersion);
                     thisRow.deleted = false;
+                    thisRow.tenantId = tenantId;
 
                     return (dbConnection.collection(getMySelf().COLLECTIONNAME).replaceOne(queryPredicate, thisRow));
                 })
