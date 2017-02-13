@@ -10,9 +10,8 @@ import { RestPersistenceAbstract } from "./rest-persistence-abstract";
 */
 export abstract class RestAppControllerAbstract {
     protected static logger;
-    private static indexDefs = [];
 
-    constructor(private persistenceManager: RestPersistenceAbstract, useLogger: ITurboLogger) {
+    constructor(protected persistenceManager: RestPersistenceAbstract, useLogger: ITurboLogger) {
         RestAppControllerAbstract.logger = useLogger;
     }
 

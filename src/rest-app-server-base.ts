@@ -38,11 +38,12 @@ export class RestAppServerBase {
     private isDevelopment: boolean;
     private confListenPort: string;
     private env: string;
+
     /**
      * @constructor
      * @description inject a controller and logger
      */
-    constructor(protected appController: RestAppControllerAbstract, useLogger: ITurboLogger) {
+    constructor(protected URL_PREFIX: string, protected appController: RestAppControllerAbstract, useLogger: ITurboLogger) {
         RestAppServerBase.logger = useLogger;
         RestAppServerBase.logger.svc.debug("constructor() entry");
 
@@ -152,7 +153,7 @@ export class RestAppServerBase {
      * @description fix configured route host:port/ping/ for health checks, should be test server, controller and persistence; default methods do this
      */
     protected configHealthCheckRoute() {
-        this.addHandlerGet("/ping/", this.appController.healthCheck);
+        this.addHandlerGet(this.URL_PREFIX + "ping/", this.appController.healthCheck);
     }
 
     private configServer() {

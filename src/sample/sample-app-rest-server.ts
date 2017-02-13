@@ -1,4 +1,5 @@
 
+import { RestAppControllerAbstract } from "../rest-app-controller-abstract";
 import { RestAppServerBase } from "../rest-app-server-base";
 // import { RestPersistenceMongo } from "turbo-rest-node";
 
@@ -9,10 +10,6 @@ import { ITurboLogger } from "../i-turbo-logger";
 const URL_PREFIX = "/svcgeschaeftspartner/";
 
 export class SampleAppRestServer extends RestAppServerBase {
-
-    constructor(myController, useLogger: ITurboLogger) {
-        super(myController, useLogger);
-    }
 
     protected configRoutes() {
         RestAppServerBase.logger.svc.debug("configRoutes()");
