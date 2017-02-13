@@ -5,7 +5,7 @@ import * as reqlogger from "morgan";
 
 import { IRestPayloadBase } from "./i-rest-payload-base";
 import { ITurboLogger } from "./i-turbo-logger";
-
+import { RestAppControllerAbstract } from "./rest-app-controller-abstract";
 import { RestExceptionBase } from "./rest-exception-base";
 
 /**
@@ -42,7 +42,7 @@ export class RestAppServerBase {
      * @constructor
      * @description inject a controller and logger
      */
-    constructor(protected appController, useLogger: ITurboLogger) {
+    constructor(protected appController: RestAppControllerAbstract, useLogger: ITurboLogger) {
         RestAppServerBase.logger = useLogger;
         RestAppServerBase.logger.svc.debug("constructor() entry");
 
@@ -67,6 +67,7 @@ export class RestAppServerBase {
 
         this.configServer();
         this.configMiddleware();
+        this.configHealthCheckRoute();
         this.configRoutes();
         this.listen();
 
@@ -145,6 +146,13 @@ export class RestAppServerBase {
      */
     protected configRoutes() {
         RestAppServerBase.logger.svc.warn("configRoutes(): !!! should be overloaded !!!");
+    }
+    /**
+     * @function configHealthCheckRoute
+     * @description fix configured route host:port/ping/ for health checks, should be test server, controller and persistence; default methods do this
+     */
+    protected configHealthCheckRoute() {
+        this.addHandlerGet("/ping/", this.appController.healthCheck);
     }
 
     private configServer() {

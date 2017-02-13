@@ -44,42 +44,48 @@ export abstract class RestPersistenceAbstract {
      * @description query by example
      * @param predicate JSON object with property/value pairs to filter the result (may be empty)
      * @param sortCriteria JSON object with property/value pairs to sort the result (may be empty)
-     * @param tenantId ID for the requested tenant. Mandantory!
-     * @param getMySelf reference to a function returning the persistence constroller instance. Mandantory!
+     * @param tenantId ID for the requested tenant. Mandatory!
+     * @param getMySelf reference to a function returning the persistence constroller instance. Mandatory!
      */
     public abstract doQBE<T extends IRestPayloadBase>(predicate, sortCriteria, tenantId: string, getMySelf): Promise<T>;
     /**
      * @function doGet
      * @description query one and only one row for a given primary key value
-     * @param idIn primary key value to ask for. Mandantory!
-     * @param tenantId ID for the requested tenant. Mandantory!
-     * @param getMySelf reference to a function returning the persistence constroller instance. Mandantory!
+     * @param idIn primary key value to ask for. Mandatory!
+     * @param tenantId ID for the requested tenant. Mandatory!
+     * @param getMySelf reference to a function returning the persistence constroller instance. Mandatory!
      */
     public abstract doGet<T extends IRestPayloadBase>(idIn: string, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
     /**
      * @function doInsert
      * @description insert a new row
      * @param thisRow full object for the new row
-     * @param tenantId ID for the requested tenant. Mandantory!
-     * @param getMySelf reference to a function returning the persistence constroller instance. Mandantory!
+     * @param tenantId ID for the requested tenant. Mandatory!
+     * @param getMySelf reference to a function returning the persistence constroller instance. Mandatory!
      */
     public abstract doInsert<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
     /**
      * @function doDelete
      * @description insert a new row
      * @param thisRow full object for the row to be deleted
-     * @param tenantId ID for the requested tenant. Mandantory!
-     * @param getMySelf reference to a function returning the persistence constroller instance. Mandantory!
+     * @param tenantId ID for the requested tenant. Mandatory!
+     * @param getMySelf reference to a function returning the persistence constroller instance. Mandatory!
      */
     public abstract doDelete<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
     /**
      * @function doUpdate
      * @description update a row, must exists
      * @param thisRow full object for the row to be updated
-     * @param tenantId ID for the requested tenant. Mandantory!
-     * @param getMySelf reference to a function returning the persistence constroller instance. Mandantory!
+     * @param tenantId ID for the requested tenant. Mandatory!
+     * @param getMySelf reference to a function returning the persistence constroller instance. Mandatory!
      */
     public abstract doUpdate<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
+    /**
+     * @function healthCheck
+     * @description will be configured and called from express server (URL host:port/ping/) through all layers to implement a health check.
+     *              Implementation should at least open and close a connection to the database
+     */
+    public abstract healthCheck<T extends IRestPayloadBase>(tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
 
     protected getAuditData(oldRowVersion: number): IAuditRecord {
         return {

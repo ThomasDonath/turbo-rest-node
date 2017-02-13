@@ -21,12 +21,31 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
     private dbMongoOptions: String;
     private dontCheckIndexes: boolean = false;
 
-    constructor(protected useAuthentication: boolean = true, private COLLECTIONNAME: string, useLogger: ITurboLogger, private doMarkDeleted = true) {
+    /**
+     * @param useAuthentication DB requires useAuthentication
+     * @param COLLECTIONNAME name for the collection to be read/written
+     * @param tenacyImpl are there all tenants in ONE database (tenantInDb) or one DB for each tenant (dbPerTenant)?
+     * @param dbName if tenacyImpl == tenantInDb then database name to be used else unused value
+     * @param doMarkDeleted rows to be deleted will not really deleted but marked as deleted. then will a query with :id return the deleted row
+     */
+    constructor(
+        protected useAuthentication: boolean = true,
+        private COLLECTIONNAME: string,
+        useLogger: ITurboLogger,
+        private tenacyImpl: "dbPerTenant" | "tenantInDb",
+        private dbName: string,
+        private doMarkDeleted = true,
+    ) {
         super(useAuthentication, useLogger);
+
+        if (tenacyImpl === "tenantInDb" && !dbName) {
+            throw new Error("DB name required but not configured");
+        }
 
         if (useAuthentication) {
             // schemaOwner/manager28
             this.dbMongoUrl = `mongodb://${this.dbUsername}:${this.dbUserPassword}@${this.dbHostNamePort}/`;
+
             this.dbMongoOptions = "?authSource=admin";
         } else {
             this.dbMongoUrl = `mongodb://${this.dbHostNamePort}/`;
@@ -262,7 +281,31 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         });
     }
 
+    public healthCheck(inTenantId: string, getMySelf: () => RestPersistenceMongo): Promise<IRestPayloadBase> {
+        RestPersistenceAbstract.logger.svc.debug(`health check entry")`);
+
+        let dummyRow: IRestPayloadBase = { auditRecord: { changedAt: new Date(), changedBy: "system", rowVersion: 0 }, deleted: false, data: {}, id: "emptyId", tenantId: inTenantId };
+        let dbConnection: Db;
+
+        return new Promise((fulfill, reject) => {
+
+            MongoClient.connect(getMySelf().getConnectString(inTenantId))
+                .then((db) => {
+                    dbConnection = db;
+                    dbConnection.close();
+
+                    dummyRow.data.message = "I'm alive";
+                    fulfill(dummyRow);
+                })
+                .catch((err) => {
+                    RestPersistenceAbstract.logger.svc.error(`health check, "${inTenantId}"): ${err}`);
+                    if (dbConnection) { dbConnection.close(); };
+                    reject(err);
+                });
+        });
+    }
+
     protected getConnectString(tenantId: string): string {
-        return this.dbMongoUrl + tenantId + this.dbMongoOptions;
+        return this.tenacyImpl === "dbPerTenant" ? this.dbMongoUrl + tenantId + this.dbMongoOptions : this.dbMongoUrl + this.dbName + this.dbMongoOptions;
     }
 }
