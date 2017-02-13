@@ -62,6 +62,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
             let queryPredicate = predicate;
 
             queryPredicate.deleted = false;
+            queryPredicate.tenantId = tenantId;
 
             MongoClient.connect(getMySelf().getConnectString(tenantId))
                 .then((db) => {
@@ -94,7 +95,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                 .then((db) => {
                     dbConnection = db;
 
-                    let q = { id: thisId };
+                    let q = { id: thisId, tenantId: thisTenant };
 
                     return dbConnection.collection(getMySelf().COLLECTIONNAME).find(q).toArray();
                 })
@@ -122,6 +123,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         thisRow.id = thisRow.id || uuid.v4();
         thisRow.auditRecord = getMySelf().getAuditData(0);
         thisRow.deleted = false;
+        thisRow.tenantId = tenantId;
 
         return new Promise((fulfill, reject) => {
             if (!tenantId) { throw new MissingTenantId(); };
@@ -206,7 +208,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     if (noLock) {
                         queryPredicate = { id: thisRow.id };
                     } else {
-                        queryPredicate = { "id": thisRow.id, "auditRecord.rowVersion": orgRowVersion };
+                        queryPredicate = { "id": thisRow.id, "tenantId": tenantId, "auditRecord.rowVersion": orgRowVersion };
                     }
 
                     thisRow.auditRecord = getMySelf().getAuditData(thisRow.auditRecord.rowVersion);
@@ -258,7 +260,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     dbConnection = db;
 
                     let orgRowVersion = thisRow.auditRecord.rowVersion;
-                    let queryPredicate = { "id": thisRow.id, "auditRecord.rowVersion": orgRowVersion };
+                    let queryPredicate = { "id": thisRow.id, "tenantId": tenantId, "auditRecord.rowVersion": orgRowVersion };
 
                     thisRow.auditRecord = getMySelf().getAuditData(thisRow.auditRecord.rowVersion);
                     thisRow.deleted = false;
