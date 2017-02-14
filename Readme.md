@@ -1,41 +1,53 @@
-# Basis für meine REST Server #
+# Turbo-Rest: base for all REST servers in my private project
 
-Die Basisklasse BaseAppRestServer liefert die Grundlage für alle Server, indem hier bereits Konfiguration, Authentifizierung etc. erledigt wird. Die echten Server liefern nur noch die Routen (weil da sind die Parameter zu behandeln) sowie die Controller.
-Außerdem sind hier die "typischen" API-Exceptions zusammengefasst. Sie liefern jeweils einen HTTP-Response; da sie alle von der gleichen Klasse abgeleitet sind, ist die Prüfung im Express-Router einfach.
+available at npm:
 
-Um die Wiederverwendung einfach zu machen, ist das als Node-Module realisiert, dass im Projekt aus dem TAR zu installieren ist.
+## What I want to get
 
-```shell
-npm install ....tgz
-bzw.
-npm install https://thomdo:Passw@bitbucket.org/thomasdonathcom/hww-tdrestserver/raw/38a82b1742d74e837a544de827a27b966c3d7630/td-rest-server-0.8.0.tgz
-```
+I want to use a MEAN stack (MongoDB, Express, Node.js + Angular) in a container environment. There was a lot of boilerplate text to write and so I started this module.
 
-Alternativ wird die URL direkt im konsumierenden package.json angegeben.
+So I want to implement:
 
-Die URL findet man, indem man im Source Browser auf Raw-Ansicht geht - dahinter verbirgt sich diese URL.
+* a Node.js instance configured with environment variables and a standard setup
+* access to MongoDB with optimistic logging and some generic stuff (auditing). I know MongoDB, but there is much to much to write and I want to get a real schemaless implemantation
+* an application controller without the need to have to deal with the HTTP stuff
+* a health check through all layers
+* standardized error handling
+* less to write
+* all to write as TypeScript
 
-**Das fertige TGZ wird nach Dropbox-public kopiert (manuell) und von dort aus in den konsumierenden Projekten installiert.**
+## How it's implemented
 
-## Entwickler-Setup ##
+There are some prepared exceptions - all derived from RestExceptionBase as it allows a simpler handling inside the route handlers and standardized messages and error codes.
 
-siehe ../ProjectConfig
+My RestAppServerBase Class prepares the application (read environment for port and so on) and particulary delivers a generic Request Handler. Here is all the biolderplate text to handle a HTTP request. The application logic will be done in the injected application controller. Beside this is a standard URL for a healthcheck. I've prepared an express middleware to do authentication - it's not implemented yet.
 
-und dann
+For the persistenence layer is there the base class RestPersistenceAbstract with some standard interfaces and the prepared health check. It should be database-agnostic but is driven by my MongoDB implementation. Besides this it reads some configuration from environment. The onlye implemnantion for this I've done is RestPersistenceMongo which implements it.
 
+To put the application logic into it, there is RestAppControllerBase. In particulary to have a method for my health check but also to have a defined type to refence to.
+
+Thanks for the input into my generic handler to: <https://visualstudiomagazine.com/articles/2015/09/01/managing-functions-in-typescript.aspx>
+
+## How to Use
+
+Put in your package.json and see ./sample/* where is
+
+* sample-app-rest-server.ts derives an instance for a Node.js server. Here are only the routes and their handlers to configure. Use this.addHandlerXYZ for that.
+* sample-app-controller.ts put here your handler methodes in (a better example will be written)
+* sample.server.ts configering the persistence manager and application controller and inject them
+
+## How to set up for development
+
+* git clone
+* prepare tsconfig "../tsconfig-global-node.json" with your prefered settings or copy my "./tsconfig-global-node.td.json"
 * npm install
-* make whatever
+* make xyz (yes, sorry: I've used the good old make - see the make targets in it)
 
-zum debuggen kann die Ausgabe mit export DEBUG="AppRestServer" aktiviert werden.
+* a small smoke test can be started with npm test or make test. You have to have a MongoDB at localhost:27017 with a user schemaOwner and password manager28
+* to debug you may use the logger and/or do export DEBUG=* or whatever else (will be print out debug messages from node/express)
 
-Einen dedizierten Test habe ich (noch) nicht - wird mit dem Integrationstest der api.geschaeftspartner getestet.
+## Open Tasks
 
-Konzept Genric Handler: <https://visualstudiomagazine.com/articles/2015/09/01/managing-functions-in-typescript.aspx>
-
-## Generell offene Aufgaben (TODO Teilprojekt) ##
-
-* JavaDoc in allen Files und in englisch - reviewen!
-* Readme in englisch und mit Gebrauchsanleitung
 * nach GitHub (package.json anpassen) und NPM (dann GitHub auch in WordPress und XING verlinken)
 * Test für die Kombinationen: noLock | markDeleted; siehe: <https://ian_lin.gitbooks.io/javascript-testing/content/chapter6.html> als Testsuite ausführen(?)
 * Formatierung Logger (Timestamp + Quelle, Re)quest-ID (ECID), Per-Request-Logging, Log Level zur Laufzeit setzen?

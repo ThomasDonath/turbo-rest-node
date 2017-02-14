@@ -19,3 +19,5 @@ pack: build
 securityCheck:
 	retire --path .
 
+test: build
+	npm test

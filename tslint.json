@@ -13,10 +13,6 @@
         "max-line-length": [
             true,
             200
-        ],
-        // ist Server-App und diese Regel deshalb unzutreffend
-        "no-console": [
-            true
         ]
     },
     "rulesDirectory": [

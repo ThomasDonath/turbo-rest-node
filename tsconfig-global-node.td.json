@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "target": "es2016",
+        "module": "commonjs",
+        "sourceMap": true,
+        "moduleResolution": "node",
+        "noEmitOnError": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "removeComments": false,
+        "noImplicitAny": false,
+        "inlineSources": true,
+        "noUnusedParameters": false,
+        "noUnusedLocals": false
+    }
+}

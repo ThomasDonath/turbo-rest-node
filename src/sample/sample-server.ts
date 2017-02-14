@@ -6,7 +6,7 @@ import { RestPersistenceMongo } from "../rest-persistence-mongo";
 import { SampleAppController } from "./sample-app-controller";
 import { SampleAppRestServer } from "./sample-app-rest-server";
 
-// Logging konfigurieren
+// configure logging
 let myLogger: ITurboLogger = { svc: null };
 myLogger.svc = new (loggerLib.Logger)({
     transports: [

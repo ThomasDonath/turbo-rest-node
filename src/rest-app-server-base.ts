@@ -225,7 +225,7 @@ export class RestAppServerBase {
         RestAppServerBase.logger.svc.debug("listen() entry");
 
         let serverInstance = this.thisServer.listen(this.confListenPort, () => {
-            console.log(`HTTP server listening on port ${serverInstance.address().port} in ${this.thisServer.settings.env}`);
+            RestAppServerBase.logger.svc.info(`HTTP server listening on port ${serverInstance.address().port} in ${this.thisServer.settings.env}`);
         });
 
         RestAppServerBase.logger.svc.debug("listen() exit");
