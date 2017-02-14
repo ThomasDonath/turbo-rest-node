@@ -9,7 +9,7 @@ I want to use a MEAN stack (MongoDB, Express, Node.js + Angular) in a container 
 So I want to implement:
 
 * a Node.js instance configured with environment variables and a standard setup
-* access to MongoDB with optimistic logging and some generic stuff (auditing). I know MongoDB, but there is much to much to write and I want to get a real schemaless implemantation
+* access to MongoDB with optimistic logging and some generic stuff (auditing). I know Mongoose, but there is much to much to write and I want to get a real schemaless implemantation
 * an application controller without the need to have to deal with the HTTP stuff
 * a health check through all layers
 * standardized error handling
@@ -48,7 +48,6 @@ Put in your package.json and see ./sample/* where is
 
 ## Open Tasks
 
-* nach GitHub (package.json anpassen) und NPM (dann GitHub auch in WordPress und XING verlinken)
 * Test für die Kombinationen: noLock | markDeleted; siehe: <https://ian_lin.gitbooks.io/javascript-testing/content/chapter6.html> als Testsuite ausführen(?)
 * Formatierung Logger (Timestamp + Quelle, Re)quest-ID (ECID), Per-Request-Logging, Log Level zur Laufzeit setzen?
 * Authentifizierung: Die Middleware wird bereits aufgerufen, muss aber noch ausprogrammiert werden. Ziel ist, ein JWT vom Client zu kriegen, dieses zu verifizieren und daraus den Mandanten abzuleiten.
