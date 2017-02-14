@@ -3,7 +3,6 @@ import * as loggerLib from "winston";
 import { ITurboLogger } from "../i-turbo-logger";
 import { RestPersistenceMongo } from "../rest-persistence-mongo";
 
-// import { AppController } from "./sample-app-controller";
 import { SampleAppController } from "./sample-app-controller";
 import { SampleAppRestServer } from "./sample-app-rest-server";
 

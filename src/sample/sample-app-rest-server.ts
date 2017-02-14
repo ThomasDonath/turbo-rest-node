@@ -1,13 +1,7 @@
-
-import { RestAppControllerAbstract } from "../rest-app-controller-abstract";
-import { RestAppServerBase } from "../rest-app-server-base";
-// import { RestPersistenceMongo } from "turbo-rest-node";
-
 import { ITurboLogger } from "../i-turbo-logger";
+import { RestAppServerBase } from "../rest-app-server-base";
 
-// import { SampleAppController } from "./sample-app-controller";
-
-const URL_PREFIX = "/svcgeschaeftspartner/";
+import { SampleAppController } from "./sample-app-controller";
 
 export class SampleAppRestServer extends RestAppServerBase {
 

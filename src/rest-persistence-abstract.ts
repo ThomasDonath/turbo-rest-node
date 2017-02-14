@@ -63,7 +63,7 @@ export abstract class RestPersistenceAbstract {
      * @param predicate JSON object with property/value pairs to filter the result (may be empty)
      * @param sortCriteria JSON object with property/value pairs to sort the result (may be empty)
      * @param tenantId ID for the requested tenant. Mandatory!
-     * @param skipRows if not null then skip these rows for pagination, if null then no skip
+     * @param skipRows if not null then skip these rows for pagination, if null then no skip - for performance it would be better, to put the skip inside the query predicate
      * @param limitRows return max. this number of rows, if null then we return max this.rowLimit rows
      * @param getMySelf reference to a function returning the persistence constroller instance. Mandatory!
      */
