@@ -15,6 +15,7 @@ build: clean lint
 
 pack: build
 	npm pack
+#	npm publish
 
 securityCheck:
 	retire --path .
