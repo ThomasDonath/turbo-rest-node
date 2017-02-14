@@ -1,6 +1,6 @@
 # Turbo-Rest: base for all REST servers in my private project
 
-available at npm:
+available at npm: <https://www.npmjs.com/package/turbo-rest-node>
 
 ## What I want to get
 
