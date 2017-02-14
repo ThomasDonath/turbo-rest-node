@@ -52,7 +52,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         }
     }
 
-    public doQBE<T extends IRestPayloadBase>(predicate, sortCriteria, tenantId: string, getMySelf): Promise<T> {
+    public doQBE<T extends IRestPayloadBase>(predicate, sortCriteria, tenantId: string, skipRows: number, limitRows: number, getMySelf): Promise<T> {
         RestPersistenceAbstract.logger.svc.debug(`doQBE ${getMySelf().COLLECTIONNAME} ("${predicate}", "${tenantId}")`);
 
         return new Promise((fulfill, reject) => {
@@ -60,6 +60,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
 
             let dbConnection: Db;
             let queryPredicate = predicate;
+            let rowLimit = limitRows || this.rowLimit;
 
             queryPredicate.deleted = false;
             queryPredicate.tenantId = tenantId;
@@ -68,7 +69,13 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                 .then((db) => {
                     dbConnection = db;
 
-                    return dbConnection.collection(getMySelf().COLLECTIONNAME).find(queryPredicate).sort(sortCriteria).toArray();
+                    return dbConnection
+                        .collection(getMySelf().COLLECTIONNAME)
+                        .find(queryPredicate)
+                        .sort(sortCriteria)
+                        .skip(skipRows ? skipRows : 0)
+                        .limit(rowLimit)
+                        .toArray();
                 })
                 .then((docs) => {
                     dbConnection.close();
@@ -150,7 +157,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     if (doCreateIndex) {
                         RestPersistenceAbstract.logger.svc.info(`creating indexes on ${dbConnection.databaseName}; row id ${thisRow.id}`);
 
-                        return dbConnection.collection(getMySelf().COLLECTIONNAME).createIndexes(RestPersistenceAbstract.indexDefs);
+                        return dbConnection.collection(getMySelf().COLLECTIONNAME).createIndexes(getMySelf().indexDefs);
                     } else {
                         return new Promise((ff) => {
                             ff();

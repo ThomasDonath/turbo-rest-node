@@ -34,7 +34,6 @@ Konzept Genric Handler: <https://visualstudiomagazine.com/articles/2015/09/01/ma
 
 ## Generell offene Aufgaben (TODO Teilprojekt) ##
 
-* Pagination und max. Rows in Get + Qbe (skip+limit)
 * das Static Zeug ist gut so??????????????????
 * JavaDoc in allen Files und in englisch - reviewen!
 * Readme in englisch und mit Gebrauchsanleitung
