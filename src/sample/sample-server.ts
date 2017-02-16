@@ -10,7 +10,16 @@ import { SampleAppRestServer } from "./sample-app-rest-server";
 let myLogger: ITurboLogger = { svc: null };
 myLogger.svc = new (loggerLib.Logger)({
     transports: [
-        new (loggerLib.transports.Console)(),
+        new (loggerLib.transports.Console)({
+            formatter: (options) => {
+                // add CID (Correlation ID)
+                return options.timestamp() + " " +
+                    options.level.toUpperCase() + " " +
+                    (options.message ? options.message : "") +
+                    (options.meta && Object.keys(options.meta).length ? "\n\t" + JSON.stringify(options.meta) : "");
+            },
+            timestamp: () => Date.now(),
+        }),
     ],
 });
 myLogger.svc.level = "debug";
