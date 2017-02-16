@@ -48,13 +48,25 @@ Put in your package.json and see ./sample/* where is
 
 ## Open Tasks
 
-* Test für die Kombinationen: noLock | markDeleted; siehe: <https://ian_lin.gitbooks.io/javascript-testing/content/chapter6.html> als Testsuite ausführen(?)
-* Formatierung Logger (Timestamp + Quelle, Re)quest-ID (ECID), Per-Request-Logging, Log Level zur Laufzeit setzen?
-* Authentifizierung: Die Middleware wird bereits aufgerufen, muss aber noch ausprogrammiert werden. Ziel ist, ein JWT vom Client zu kriegen, dieses zu verifizieren und daraus den Mandanten abzuleiten.
-* echten Usernamen (aus Authentifizierung) in den AuditRecord schreiben (RestPersistenceAbstract.getAuditData)
-* für alle DML wenn das Format nicht passt (JSON-Parse Fehler fängt Express ab - Pflichtfelder muss ich selber testen) ebenso, wenn der Body kein JSON sein sollte(?)
-* Security: check/add Helmet, Express-validation See <https://github.com/KunalKapadia/express-mongoose-es6-rest-api?utm_source=microserviceweekly.com&utm_medium=email>
-* *später*
-* Das "Connection holen" in eine Funktion auslagern; diese Funktion könnte Connections je Mandant vorhalten (FIFO-Array(10))
-* Löschen: => neue Methode queryAll (als "Papierkorb" im UI) und PapierkorbLeeren()
-* Logging als Aspekt
+* Test
+  * with DB
+  * request (body) is no JSON, is incompatibel to IRestPayloadBase
+  * all combinations of
+    * noLock
+    * markDeleted
+    * DB per tenant or all tenants in one DB
+  * see: <https://ian_lin.gitbooks.io/javascript-testing/content/chapter6.html> do it as testsuite(s)?
+* security:
+  * check/add Helmet, Express validation [Example](https://github.com/KunalKapadia/express-mongoose-es6-rest-api)
+  * authentification: middleware is prepared and will be called already, but set only static tenant = Demo. Have to read a JWT from request, verify that; get tenant from JWT or from request and autorize this tenant
+  * write user name into audit record (RestPersistenceAbstract.getAuditData)
+* *later on*
+* connection pooling: reuse an opened connection, if database per tenant then reuse per tenant (FIFO array?)
+* New doQbeBin() (used as "view recycle bin" in UI) and  emptyBin()
+* Logging
+  * implement as aspect
+  * per-request-logging and/or set log level online (winston: logger.transports.console.level = new-level)
+  * add correlation id (cid):
+    * all calls behind the http request are unique assigned to the request? no - in simple CRUD logic only
+    * many calls to different REST servers may belong to one client call? yes
+    * ==> cid has to come from the request, if null so we calculate one and give it to any subsequent call as parameter or is there a better solution?
