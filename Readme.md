@@ -60,6 +60,7 @@ Put in your package.json and see ./sample/* where is
   * check/add Helmet, Express validation [Example](https://github.com/KunalKapadia/express-mongoose-es6-rest-api)
   * authentification: middleware is prepared and will be called already, but set only static tenant = Demo. Have to read a JWT from request, verify that; get tenant from JWT or from request and autorize this tenant
   * write user name into audit record (RestPersistenceAbstract.getAuditData)
+* no any's
 * *later on*
 * connection pooling: reuse an opened connection, if database per tenant then reuse per tenant (FIFO array?)
 * New doQbeBin() (used as "view recycle bin" in UI) and  emptyBin()
