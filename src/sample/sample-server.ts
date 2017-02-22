@@ -22,7 +22,7 @@ myLogger.svc = new (loggerLib.Logger)({
         }),
     ],
 });
-myLogger.svc.level = "debug";
+myLogger.svc.level = "info";
 
 let samplePersistence = new RestPersistenceMongo(true, "sample", myLogger, "dbPerTenant", null);
 let sampleController = new SampleAppController(samplePersistence, myLogger);

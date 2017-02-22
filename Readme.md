@@ -36,6 +36,15 @@ Put in your package.json and see ./sample/* where is
 * sample-app-controller.ts put here your handler methodes in (a better example will be written)
 * sample.server.ts configering the persistence manager and application controller and inject them
 
+### Authentication
+
+Protected method getAuthentication implements authentication with JWT (secret string, no key) for every handler expect the xxxxInsecure's. JWT token will be defined in IJwtToken with username and tenant property.
+If authenticated successfully then we set params.user & params.tenant for use in further handlers.
+
+You may use a public key instead, however you have to put the secret string or key in env CONF_SECRET_KEY.
+
+If no key given, in development mode we set user=test and tenant=test-tenant. But in production mode we dont start.
+
 ## How to set up for development
 
 * git clone

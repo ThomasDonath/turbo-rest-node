@@ -1,8 +1,11 @@
 import * as bodyParser from "body-parser";
 import * as errorHandler from "errorhandler";
 import * as express from "express";
+import * as jwt from "jsonwebtoken";
 import * as reqlogger from "morgan";
 
+import { AuthenticationError } from "./authentication-error";
+import { IJwtToken } from "./i-jwt-token";
 import { IRestPayloadBase } from "./i-rest-payload-base";
 import { ITurboLogger } from "./i-turbo-logger";
 import { RestAppControllerAbstract } from "./rest-app-controller-abstract";
@@ -14,10 +17,13 @@ import { RestExceptionBase } from "./rest-exception-base";
  *              * get configuration from the environment:
  *                 - CONF_LISTEN_PORT       (8080)
  *                 - NODE_ENV               (development)
+ *                 - CONF_SECRET_KEY     Secret String or public key to verify JWT in headers.x-auth-token
  *              * handling all the HTTP request/response stuff, so we can use a controller with pure JSON in/output
  *              * does logging
+ *              * if DEV mode and no CONF_SECRET_KEY, then no authentication (user = test, tenant = test-tenant), if PROD then Error
  */
 export class RestAppServerBase {
+    protected static secretKey: string;
     protected static logger: ITurboLogger;
 
     /**
@@ -54,6 +60,16 @@ export class RestAppServerBase {
         this.env = process.env.NODE_ENV || "development";
         this.isDevelopment = (this.env === "development");
 
+        RestAppServerBase.secretKey = process.env.CONF_SECRET_KEY;
+        if (!RestAppServerBase.secretKey) {
+            if (this.isDevelopment) {
+                RestAppServerBase.logger.svc.warn("Development Mode without authentication");
+            } else {
+                RestAppServerBase.logger.svc.error("Production Mode without authentication");
+                throw new Error("authentication required for Production Mode, no key found");
+            }
+        }
+
         RestAppServerBase.logger.svc.debug("constructor exit");
     }
 
@@ -82,7 +98,22 @@ export class RestAppServerBase {
     protected getAuthentication(req: express.Request, res: express.Response, next) {
         RestAppServerBase.logger.svc.debug("getAuthentication() entry");
 
-        req.params.tenant = "demo";
+        // https://www.npmjs.com/package/jsonwebtoken
+        if (!RestAppServerBase.secretKey) {
+            req.params.user = "test";
+            req.params.tenant = "test-tenant";
+        } else {
+            let jwtt: IJwtToken;
+
+            try {
+                jwtt = jwt.verify(req.headers["x-auth-token"], RestAppServerBase.secretKey);
+            } catch (e) {
+                throw new AuthenticationError(e.name, e.message);
+            }
+
+            req.params.user = jwtt.username;
+            req.params.tenant = jwtt.tenant;
+        }
         RestAppServerBase.logger.svc.debug(`getAuthentication() exit: Tenant="${req.params.tenant}"`);
 
         next();
@@ -109,6 +140,17 @@ export class RestAppServerBase {
         });
     }
     /**
+     * @function addHandlerGetInsecure
+     * @description map an URL with verb GET to a method from the injected application controller - without authentication
+     * @param inUrl URL to be mapped
+     * @param inMethodRef reference to method from application controller with the given signature (request and a reference to the application controller instance)
+     */
+    protected addHandlerGetInsecure(inUrl: string, inMethodRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
+        this.thisServer.get(inUrl, (req: express.Request, res: express.Response) => {
+            this.genericHandler(req, res, inMethodRef, () => this.appController, 200);
+        });
+    }
+    /**
      * @function addHandlerPut
      * @description map an URL with verb PUT to a method from the injected application controller
      * @param inUrl URL to be mapped
@@ -116,6 +158,17 @@ export class RestAppServerBase {
      */
     protected addHandlerPut(inUrl: string, inMethodRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
         this.thisServer.put(inUrl, this.getAuthentication, (req, res) => {
+            this.genericHandler(req, res, inMethodRef, () => this.appController, 200);
+        });
+    }
+    /**
+     * @function addHandlerPutInsecure
+     * @description map an URL with verb PUT to a method from the injected application controller - without authentication
+     * @param inUrl URL to be mapped
+     * @param inMethodRef reference to method from application controller with the given signature (request and a reference to the application controller instance)
+     */
+    protected addHandlerPutInsecure(inUrl: string, inMethodRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
+        this.thisServer.put(inUrl, (req, res) => {
             this.genericHandler(req, res, inMethodRef, () => this.appController, 200);
         });
     }
@@ -131,6 +184,17 @@ export class RestAppServerBase {
         });
     }
     /**
+     * @function addHandlerPostInsecure
+     * @description map an URL with verb POST to a method from the injected application controller - without authentication
+     * @param inUrl URL to be mapped
+     * @param inMethodRef reference to method from application controller with the given signature (request and a reference to the application controller instance)
+     */
+    protected addHandlerPostInsecure(inUrl: string, inMethodRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
+        this.thisServer.post(inUrl, (req: express.Request, res: express.Response) => {
+            this.genericHandler(req, res, inMethodRef, () => this.appController, 201);
+        });
+    }
+    /**
      * @function addHandlerDelete
      * @description map an URL with verb DELET to a method from the injected application controller
      * @param inUrl URL to be mapped
@@ -138,6 +202,17 @@ export class RestAppServerBase {
      */
     protected addHandlerDelete(inUrl: string, inMethodRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
         this.thisServer.delete(inUrl, this.getAuthentication, (req: express.Request, res: express.Response) => {
+            this.genericHandler(req, res, inMethodRef, () => this.appController, 200);
+        });
+    }
+    /**
+     * @function addHandlerDeleteInsecure
+     * @description map an URL with verb DELET to a method from the injected application controller - without authentication
+     * @param inUrl URL to be mapped
+     * @param inMethodRef reference to method from application controller with the given signature (request and a reference to the application controller instance)
+     */
+    protected addHandlerDeleteInsecure(inUrl: string, inMethodRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
+        this.thisServer.delete(inUrl, (req: express.Request, res: express.Response) => {
             this.genericHandler(req, res, inMethodRef, () => this.appController, 200);
         });
     }
@@ -153,7 +228,7 @@ export class RestAppServerBase {
      * @description fix configured route host:port/ping/ for health checks, should be test server, controller and persistence; default methods do this
      */
     protected configHealthCheckRoute() {
-        this.addHandlerGet(this.URL_PREFIX + "ping/", this.appController.healthCheck);
+        this.addHandlerGetInsecure(this.URL_PREFIX + "ping/", this.appController.healthCheck);
     }
 
     private configServer() {
