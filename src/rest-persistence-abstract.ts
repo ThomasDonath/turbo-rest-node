@@ -1,7 +1,7 @@
-import { IAuditRecord } from "./i-rest-payload-auditrecord";
-import { IRestPayloadBase } from "./i-rest-payload-base";
-import { ITurboLogger } from "./i-turbo-logger";
-import { MissingAuditData } from "./missing-audit-data";
+import { IAuditRecord } from './i-rest-payload-auditrecord';
+import { IRestPayloadBase } from './i-rest-payload-base';
+import { ITurboLogger } from './i-turbo-logger';
+import { MissingAuditData } from './missing-audit-data';
 
 const DFLT_ROW_LIMIT: number = 100;
 
@@ -31,13 +31,13 @@ export abstract class RestPersistenceAbstract {
     constructor(protected useAuthentication: boolean = true, useLogger: ITurboLogger) {
         RestPersistenceAbstract.logger = useLogger;
 
-        this.dbHostNamePort = process.env.CONF_DB_SERVERNAME_PORT || "localhost:27017";
+        this.dbHostNamePort = process.env.CONF_DB_SERVERNAME_PORT || 'localhost:27017';
         this.dbUsername = process.env.CONF_DB_USERNAME;
         this.dbUserPassword = process.env.CONF_DB_USERPASSWORD;
 
         RestPersistenceAbstract.logger.svc.info(`CONF_DB_SERVERNAME_PORT: "${this.dbHostNamePort}"`);
         RestPersistenceAbstract.logger.svc.info(`CONF_DB_USERNAME: "${this.dbUsername}"`);
-        RestPersistenceAbstract.logger.svc.info(`CONF_DB_USERPASSWORD: ${this.dbUserPassword ? "***" : "null"}`);
+        RestPersistenceAbstract.logger.svc.info(`CONF_DB_USERPASSWORD: ${this.dbUserPassword ? '***' : 'null'}`);
     }
 
     /**
@@ -110,7 +110,7 @@ export abstract class RestPersistenceAbstract {
     protected getAuditData(oldRowVersion: number): IAuditRecord {
         return {
             changedAt: new Date(),
-            changedBy: "Anonymous",
+            changedBy: 'Anonymous',
             rowVersion: ++oldRowVersion,
         };
     }
@@ -132,7 +132,7 @@ export abstract class RestPersistenceAbstract {
                 throw new MissingAuditData();
             }
         } catch (e) {
-            if (e.name === "TypeError") {
+            if (e.name === 'TypeError') {
                 throw new MissingAuditData();
             } else {
                 throw (e);

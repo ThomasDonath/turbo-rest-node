@@ -1,5 +1,5 @@
-import * as express from "express";
-import { RestExceptionBase } from "./rest-exception-base";
+import * as express from 'express';
+import { RestExceptionBase } from './rest-exception-base';
 
 /**
  * @class RecordExistsAlready
@@ -7,7 +7,7 @@ import { RestExceptionBase } from "./rest-exception-base";
  */
 export class RecordExistsAlready extends RestExceptionBase {
     constructor(inChangedAt: Date, inChangedBy: string) {
-        super("RecordExistsAlready", `A record with the same primary or unique key value already exists. Inserted or last change at ${inChangedAt.toLocaleString()} by ${inChangedBy}.`, 409);
+        super('RecordExistsAlready', `A record with the same primary or unique key value already exists. Inserted or last change at ${inChangedAt.toLocaleString()} by ${inChangedBy}.`, 409);
         this.additionalProperties.changedAt = inChangedAt;
         this.additionalProperties.changedby = inChangedBy;
     };

@@ -1,5 +1,5 @@
-import * as express from "express";
-import { RestExceptionBase } from "./rest-exception-base";
+import * as express from 'express';
+import { RestExceptionBase } from './rest-exception-base';
 
 /**
  * @class AuthenticationError
@@ -7,7 +7,7 @@ import { RestExceptionBase } from "./rest-exception-base";
  */
 export class AuthenticationError extends RestExceptionBase {
     constructor(private errorName: string, errorMessage) {
-        super("AuthenticationErrorException",
+        super('AuthenticationErrorException',
             `Not able to authenticate (${errorName})`,
             401);
         this.additionalProperties.errorName = errorName;

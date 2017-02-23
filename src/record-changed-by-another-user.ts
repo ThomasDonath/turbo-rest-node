@@ -1,5 +1,5 @@
-import * as express from "express";
-import { RestExceptionBase } from "./rest-exception-base";
+import * as express from 'express';
+import { RestExceptionBase } from './rest-exception-base';
 
 /**
  * @class RecordChangedByAnotherUser
@@ -7,7 +7,7 @@ import { RestExceptionBase } from "./rest-exception-base";
  */
 export class RecordChangedByAnotherUser extends RestExceptionBase {
     constructor(private notFoundId: string) {
-        super("RecordChangedByAnotherUser",
+        super('RecordChangedByAnotherUser',
             `Record with ID ${notFoundId} was changed by another user inbetween. So it has another row version as in payload.
              User should refresh the view and repeat the change.`,
             409);

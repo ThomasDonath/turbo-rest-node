@@ -1,15 +1,15 @@
-import { Db, MongoClient } from "mongodb";
-import * as uuid from "uuid";
+import { Db, MongoClient } from 'mongodb';
+import * as uuid from 'uuid';
 
-import { IRestPayloadBase } from "./i-rest-payload-base";
-import { ITurboLogger } from "./i-turbo-logger";
-import { RestPersistenceAbstract } from "./rest-persistence-abstract";
+import { IRestPayloadBase } from './i-rest-payload-base';
+import { ITurboLogger } from './i-turbo-logger';
+import { RestPersistenceAbstract } from './rest-persistence-abstract';
 
-import { MissingTenantId } from "./missing-tenant-id";
-import { RecordExistsAlready } from "./record-already-exists";
-import { RecordChangedByAnotherUser } from "./record-changed-by-another-user";
-import { RecordNotFound } from "./record-not-found";
-import { TooManyRows } from "./too-many-rows";
+import { MissingTenantId } from './missing-tenant-id';
+import { RecordExistsAlready } from './record-already-exists';
+import { RecordChangedByAnotherUser } from './record-changed-by-another-user';
+import { RecordNotFound } from './record-not-found';
+import { TooManyRows } from './too-many-rows';
 
 export class RestPersistenceMongo extends RestPersistenceAbstract {
 
@@ -32,21 +32,21 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         protected useAuthentication: boolean = true,
         private COLLECTIONNAME: string,
         useLogger: ITurboLogger,
-        private tenacyImpl: "dbPerTenant" | "tenantInDb",
+        private tenacyImpl: 'dbPerTenant' | 'tenantInDb',
         private dbName: string,
         private doMarkDeleted = true,
     ) {
         super(useAuthentication, useLogger);
 
-        if (tenacyImpl === "tenantInDb" && !dbName) {
-            throw new Error("DB name required but not configured");
+        if (tenacyImpl === 'tenantInDb' && !dbName) {
+            throw new Error('DB name required but not configured');
         }
 
         if (useAuthentication) {
             // schemaOwner/manager28
             this.dbMongoUrl = `mongodb://${this.dbUsername}:${this.dbUserPassword}@${this.dbHostNamePort}/`;
 
-            this.dbMongoOptions = "?authSource=admin";
+            this.dbMongoOptions = '?authSource=admin';
         } else {
             this.dbMongoUrl = `mongodb://${this.dbHostNamePort}/`;
         }
@@ -169,13 +169,13 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     return dbConnection.collection(getMySelf().COLLECTIONNAME).insertOne(thisRow);
                 })
                 .catch((err) => {
-                    if ((err.name === "MongoError") && (err.code === 11000) && (err.driver)) {
+                    if ((err.name === 'MongoError') && (err.code === 11000) && (err.driver)) {
                         throw new RecordExistsAlready(thisRow.auditRecord.changedAt, thisRow.auditRecord.changedBy);
                     } else {
                         // not sure if this the right error code for an index that already exist
-                        RestPersistenceAbstract.logger.svc.warn("create duplicate index(?) errcode ${err.code}");
+                        RestPersistenceAbstract.logger.svc.warn('create duplicate index(?) errcode ${err.code}');
 
-                        if (!((err.name === "MongoError") && (err.code === 11000) && (err.driver))) {
+                        if (!((err.name === 'MongoError') && (err.code === 11000) && (err.driver))) {
                             throw (err);
                         }
                     }
@@ -215,7 +215,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     if (noLock) {
                         queryPredicate = { id: thisRow.id };
                     } else {
-                        queryPredicate = { "id": thisRow.id, "tenantId": tenantId, "auditRecord.rowVersion": orgRowVersion };
+                        queryPredicate = { 'id': thisRow.id, 'tenantId': tenantId, 'auditRecord.rowVersion': orgRowVersion };
                     }
 
                     thisRow.auditRecord = getMySelf().getAuditData(thisRow.auditRecord.rowVersion);
@@ -267,7 +267,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     dbConnection = db;
 
                     let orgRowVersion = thisRow.auditRecord.rowVersion;
-                    let queryPredicate = { "id": thisRow.id, "tenantId": tenantId, "auditRecord.rowVersion": orgRowVersion };
+                    let queryPredicate = { 'id': thisRow.id, 'tenantId': tenantId, 'auditRecord.rowVersion': orgRowVersion };
 
                     thisRow.auditRecord = getMySelf().getAuditData(thisRow.auditRecord.rowVersion);
                     thisRow.deleted = false;
@@ -294,7 +294,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
     public healthCheck(inTenantId: string, getMySelf: () => RestPersistenceMongo): Promise<IRestPayloadBase> {
         RestPersistenceAbstract.logger.svc.debug(`health check entry")`);
 
-        let dummyRow: IRestPayloadBase = { auditRecord: { changedAt: new Date(), changedBy: "system", rowVersion: 0 }, deleted: false, data: {}, id: "emptyId", tenantId: inTenantId };
+        let dummyRow: IRestPayloadBase = { auditRecord: { changedAt: new Date(), changedBy: 'system', rowVersion: 0 }, deleted: false, data: {}, id: 'emptyId', tenantId: inTenantId };
         let dbConnection: Db;
 
         return new Promise((fulfill, reject) => {
@@ -304,7 +304,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     dbConnection = db;
                     dbConnection.close();
 
-                    dummyRow.data.message = "I'm alive";
+                    dummyRow.data.message = 'I\'m alive';
                     fulfill(dummyRow);
                 })
                 .catch((err) => {
@@ -316,6 +316,6 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
     }
 
     protected getConnectString(tenantId: string): string {
-        return this.tenacyImpl === "dbPerTenant" ? this.dbMongoUrl + tenantId + this.dbMongoOptions : this.dbMongoUrl + this.dbName + this.dbMongoOptions;
+        return this.tenacyImpl === 'dbPerTenant' ? this.dbMongoUrl + tenantId + this.dbMongoOptions : this.dbMongoUrl + this.dbName + this.dbMongoOptions;
     }
 }

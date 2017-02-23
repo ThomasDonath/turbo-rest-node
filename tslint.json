@@ -13,6 +13,10 @@
         "max-line-length": [
             true,
             200
+        ],
+        "quotemark": [
+            true,
+            "single"
         ]
     },
     "rulesDirectory": [

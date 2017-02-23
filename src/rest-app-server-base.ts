@@ -1,15 +1,15 @@
-import * as bodyParser from "body-parser";
-import * as errorHandler from "errorhandler";
-import * as express from "express";
-import * as jwt from "jsonwebtoken";
-import * as reqlogger from "morgan";
+import * as bodyParser from 'body-parser';
+import * as errorHandler from 'errorhandler';
+import * as express from 'express';
+import * as jwt from 'jsonwebtoken';
+import * as reqlogger from 'morgan';
 
-import { AuthenticationError } from "./authentication-error";
-import { IJwtToken } from "./i-jwt-token";
-import { IRestPayloadBase } from "./i-rest-payload-base";
-import { ITurboLogger } from "./i-turbo-logger";
-import { RestAppControllerAbstract } from "./rest-app-controller-abstract";
-import { RestExceptionBase } from "./rest-exception-base";
+import { AuthenticationError } from './authentication-error';
+import { IJwtToken } from './i-jwt-token';
+import { IRestPayloadBase } from './i-rest-payload-base';
+import { ITurboLogger } from './i-turbo-logger';
+import { RestAppControllerAbstract } from './rest-app-controller-abstract';
+import { RestExceptionBase } from './rest-exception-base';
 
 /**
  * @class RestAppServerBase
@@ -33,7 +33,7 @@ export class RestAppServerBase {
     protected static ServerErrorResponse(msg: string, stacktrace: string, res: express.Response): express.Response {
         RestAppServerBase.logger.svc.error(`Error-500 Msg:"${msg}" Stack="${stacktrace}"`);
 
-        res.writeHead(500, { "Content-Type": "text/plain" });
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
         res.write(`Exception ${msg}: ${stacktrace}`);
         res.end();
         return (res);
@@ -51,26 +51,26 @@ export class RestAppServerBase {
      */
     constructor(protected URL_PREFIX: string, protected appController: RestAppControllerAbstract, useLogger: ITurboLogger) {
         RestAppServerBase.logger = useLogger;
-        RestAppServerBase.logger.svc.debug("constructor() entry");
+        RestAppServerBase.logger.svc.debug('constructor() entry');
 
         this.thisServer = express();
 
         this.confListenPort = process.env.CONF_LISTEN_PORT || 8080;
 
-        this.env = process.env.NODE_ENV || "development";
-        this.isDevelopment = (this.env === "development");
+        this.env = process.env.NODE_ENV || 'development';
+        this.isDevelopment = (this.env === 'development');
 
         RestAppServerBase.secretKey = process.env.CONF_SECRET_KEY;
         if (!RestAppServerBase.secretKey) {
             if (this.isDevelopment) {
-                RestAppServerBase.logger.svc.warn("Development Mode without authentication");
+                RestAppServerBase.logger.svc.warn('Development Mode without authentication');
             } else {
-                RestAppServerBase.logger.svc.error("Production Mode without authentication");
-                throw new Error("authentication required for Production Mode, no key found");
+                RestAppServerBase.logger.svc.error('Production Mode without authentication');
+                throw new Error('authentication required for Production Mode, no key found');
             }
         }
 
-        RestAppServerBase.logger.svc.debug("constructor exit");
+        RestAppServerBase.logger.svc.debug('constructor exit');
     }
 
     /**
@@ -78,9 +78,9 @@ export class RestAppServerBase {
      * @description has to be called as entrypoint from Node.js to run the server instance
      */
     public main() {
-        RestAppServerBase.logger.svc.debug("main() entry");
+        RestAppServerBase.logger.svc.debug('main() entry');
 
-        RestAppServerBase.logger.svc.info(`${new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString()} HTTP server starting up...`);
+        RestAppServerBase.logger.svc.info(`${new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString()} HTTP server starting up...`);
 
         this.configServer();
         this.configMiddleware();
@@ -88,7 +88,7 @@ export class RestAppServerBase {
         this.configRoutes();
         this.listen();
 
-        RestAppServerBase.logger.svc.debug("main() exit");
+        RestAppServerBase.logger.svc.debug('main() exit');
     }
 
     /**
@@ -96,17 +96,17 @@ export class RestAppServerBase {
      * @description Express middleware handler to get user, authentication and tenant from the request
      */
     protected getAuthentication(req: express.Request, res: express.Response, next) {
-        RestAppServerBase.logger.svc.debug("getAuthentication() entry");
+        RestAppServerBase.logger.svc.debug('getAuthentication() entry');
 
         // https://www.npmjs.com/package/jsonwebtoken
         if (!RestAppServerBase.secretKey) {
-            req.params.user = "test";
-            req.params.tenant = "test-tenant";
+            req.params.user = 'test';
+            req.params.tenant = 'test-tenant';
         } else {
             let jwtt: IJwtToken;
 
             try {
-                jwtt = jwt.verify(req.headers["x-auth-token"], RestAppServerBase.secretKey);
+                jwtt = jwt.verify(req.headers['x-auth-token'], RestAppServerBase.secretKey);
             } catch (e) {
                 throw new AuthenticationError(e.name, e.message);
             }
@@ -124,7 +124,7 @@ export class RestAppServerBase {
      * @description Express middleware handler to get DEMO or TEST tenant
      */
     protected getDemoTenant(req: express.Request, res: express.Response, next) {
-        req.params.tenant = "demo";
+        req.params.tenant = 'demo';
         next();
     }
 
@@ -221,48 +221,48 @@ export class RestAppServerBase {
      * @description an (abstract) method to be filled out in the overloading class with calls to addHandlerXYZ, will be called during configuration of the server instance
      */
     protected configRoutes() {
-        RestAppServerBase.logger.svc.warn("configRoutes(): !!! should be overloaded !!!");
+        RestAppServerBase.logger.svc.warn('configRoutes(): !!! should be overloaded !!!');
     }
     /**
      * @function configHealthCheckRoute
      * @description fix configured route host:port/ping/ for health checks, should be test server, controller and persistence; default methods do this
      */
     protected configHealthCheckRoute() {
-        this.addHandlerGetInsecure(this.URL_PREFIX + "ping/", this.appController.healthCheck);
+        this.addHandlerGetInsecure(this.URL_PREFIX + 'ping/', this.appController.healthCheck);
     }
 
     private configServer() {
-        RestAppServerBase.logger.svc.debug("configServer() entry");
+        RestAppServerBase.logger.svc.debug('configServer() entry');
 
         this.thisServer.use(bodyParser.json());
         if (this.isDevelopment) { this.thisServer.use(errorHandler()); }
 
-        RestAppServerBase.logger.svc.info("using configuration:");
-        RestAppServerBase.logger.svc.info("port: %d", this.confListenPort);
-        RestAppServerBase.logger.svc.info("mode: %s", this.env);
-        RestAppServerBase.logger.svc.info("its development? " + this.isDevelopment);
+        RestAppServerBase.logger.svc.info('using configuration:');
+        RestAppServerBase.logger.svc.info('port: %d', this.confListenPort);
+        RestAppServerBase.logger.svc.info('mode: %s', this.env);
+        RestAppServerBase.logger.svc.info('its development? ' + this.isDevelopment);
 
-        this.thisServer.disable("x-powered-by");
+        this.thisServer.disable('x-powered-by');
 
-        RestAppServerBase.logger.svc.debug("configServer exit");
+        RestAppServerBase.logger.svc.debug('configServer exit');
     }
 
     private configMiddleware() {
-        RestAppServerBase.logger.svc.debug("configMiddleware() entry");
+        RestAppServerBase.logger.svc.debug('configMiddleware() entry');
 
         if (this.isDevelopment) {
             // write all requests and responses to log (Morgan Library)
-            this.thisServer.use(reqlogger("dev"));
+            this.thisServer.use(reqlogger('dev'));
 
             // Allow Cross Site Requests
             this.thisServer.use((req, res, next) => {
-                res.header("Access-Control-Allow-Origin", "*");
-                res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-                res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+                res.header('Access-Control-Allow-Origin', '*');
+                res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+                res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
                 next();
             });
         }
-        RestAppServerBase.logger.svc.debug("configMiddleware() exit");
+        RestAppServerBase.logger.svc.debug('configMiddleware() exit');
     }
 
     /*
@@ -276,14 +276,14 @@ export class RestAppServerBase {
         controllerFunction: (req: express.Request, getControllerFn) => Promise<IRestPayloadBase>,
         getControllerFn,
         successCode: number): void => {
-        RestAppServerBase.logger.svc.debug("genericHandler entry");
+        RestAppServerBase.logger.svc.debug('genericHandler entry');
 
         controllerFunction(req, getControllerFn)
             .then((result) => {
-                res.writeHead(successCode, { "Content-Type": "application/json" });
+                res.writeHead(successCode, { 'Content-Type': 'application/json' });
                 res.write(JSON.stringify(result));
                 res.end();
-                RestAppServerBase.logger.svc.debug("genericHandler exit");
+                RestAppServerBase.logger.svc.debug('genericHandler exit');
             })
             .catch((err) => {
                 RestAppServerBase.logger.svc.error(`Error="${err.stack}"`);
@@ -297,12 +297,12 @@ export class RestAppServerBase {
     }
 
     private listen() {
-        RestAppServerBase.logger.svc.debug("listen() entry");
+        RestAppServerBase.logger.svc.debug('listen() entry');
 
         let serverInstance = this.thisServer.listen(this.confListenPort, () => {
             RestAppServerBase.logger.svc.info(`HTTP server listening on port ${serverInstance.address().port} in ${this.thisServer.settings.env}`);
         });
 
-        RestAppServerBase.logger.svc.debug("listen() exit");
+        RestAppServerBase.logger.svc.debug('listen() exit');
     }
 };

@@ -1,4 +1,4 @@
-import { IAuditRecord } from "./i-rest-payload-auditrecord";
+import { IAuditRecord } from './i-rest-payload-auditrecord';
 
 /**
  * @class IRestPayloadBase

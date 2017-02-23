@@ -1,6 +1,6 @@
-import * as express from "express";
+import * as express from 'express';
 
-import { RestExceptionBase } from "./rest-exception-base";
+import { RestExceptionBase } from './rest-exception-base';
 
 /**
  * @class MissingTenantId
@@ -9,6 +9,6 @@ import { RestExceptionBase } from "./rest-exception-base";
 export class MissingTenantId extends RestExceptionBase {
 
     constructor() {
-        super("MissingTenantId", "Internal error: request without tenant ID", 500);
+        super('MissingTenantId', 'Internal error: request without tenant ID', 500);
     };
 };

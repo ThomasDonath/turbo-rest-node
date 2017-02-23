@@ -1,5 +1,5 @@
-import * as express from "express";
-import { RestExceptionBase } from "./rest-exception-base";
+import * as express from 'express';
+import { RestExceptionBase } from './rest-exception-base';
 
 /**
  * @class RecordNotFound
@@ -7,7 +7,7 @@ import { RestExceptionBase } from "./rest-exception-base";
  */
 export class RecordNotFound extends RestExceptionBase {
     constructor(private notFoundId: string) {
-        super("RecordNotFoundException",
+        super('RecordNotFoundException',
             `No record with internal ID (Primary Key) ${notFoundId} found. Almost an internal error.`,
             404);
         this.additionalProperties.id = notFoundId;

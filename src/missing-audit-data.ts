@@ -1,6 +1,6 @@
-import * as express from "express";
+import * as express from 'express';
 
-import { RestExceptionBase } from "./rest-exception-base";
+import { RestExceptionBase } from './rest-exception-base';
 
 /**
  * @class MissingAuditData
@@ -9,6 +9,6 @@ import { RestExceptionBase } from "./rest-exception-base";
 export class MissingAuditData extends RestExceptionBase {
 
     constructor() {
-        super("MissingAuditData", "Internal error: request without audit data", 500);
+        super('MissingAuditData', 'Internal error: request without audit data', 500);
     };
 };

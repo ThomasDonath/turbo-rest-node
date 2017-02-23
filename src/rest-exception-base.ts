@@ -1,4 +1,4 @@
-import * as express from "express";
+import * as express from 'express';
 
 /**
  * @class  RestExceptionBase
@@ -24,7 +24,7 @@ export class RestExceptionBase extends Error {
         this.httpCode = inHttpCode;
     }
     public giveResponse(res: express.Response): express.Response {
-        res.writeHead(this.httpCode, { "Content-Type": "application/json" });
+        res.writeHead(this.httpCode, { 'Content-Type': 'application/json' });
         res.write(JSON.stringify({ code: this.httpCode, exceptionName: this.name, internalMessage: this.message, additionalProperties: this.additionalProperties }));
         res.end();
         return (res);

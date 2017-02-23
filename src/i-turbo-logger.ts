@@ -1,4 +1,4 @@
-import * as loggerLib from "winston";
+import * as loggerLib from 'winston';
 
 /**
  * @class ITurboLogger

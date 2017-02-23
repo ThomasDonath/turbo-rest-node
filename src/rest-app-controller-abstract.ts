@@ -1,8 +1,8 @@
-import * as express from "express";
+import * as express from 'express';
 
-import { IRestPayloadBase } from "./i-rest-payload-base";
-import { ITurboLogger } from "./i-turbo-logger";
-import { RestPersistenceAbstract } from "./rest-persistence-abstract";
+import { IRestPayloadBase } from './i-rest-payload-base';
+import { ITurboLogger } from './i-turbo-logger';
+import { RestPersistenceAbstract } from './rest-persistence-abstract';
 
 /*
  * @class RestAppControllerAbstract
@@ -17,7 +17,7 @@ export abstract class RestAppControllerAbstract {
 
     public healthCheck(request: express.Request, getControllerFn: () => RestAppControllerAbstract): Promise<IRestPayloadBase> {
 
-        let tenantId: string = request.params.tenant || "0";
+        let tenantId: string = request.params.tenant || '0';
 
         RestAppControllerAbstract.logger.svc.debug(`healthCheck "${tenantId}")`);
 
