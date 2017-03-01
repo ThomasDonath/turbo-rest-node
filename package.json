@@ -1,7 +1,7 @@
 {
   "name": "turbo-rest-node",
   "description": "base to implement REST with Node.js and Express",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/ThomasDonath/turbo-rest-node",

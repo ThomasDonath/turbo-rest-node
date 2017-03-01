@@ -67,7 +67,6 @@ If no key given, in development mode we set user=test and tenant=test-tenant. Bu
   * see: <https://ian_lin.gitbooks.io/javascript-testing/content/chapter6.html> do it as testsuite(s)?
 * security:
   * check/add Helmet, Express validation [Example](https://github.com/KunalKapadia/express-mongoose-es6-rest-api)
-  * authentification: middleware is prepared and will be called already, but set only static tenant = Demo. Have to read a JWT from request, verify that; get tenant from JWT or from request and autorize this tenant
   * write user name into audit record (RestPersistenceAbstract.getAuditData)
 * no any's
 * *later on*

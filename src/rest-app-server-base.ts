@@ -106,7 +106,12 @@ export class RestAppServerBase {
             let jwtt: IJwtToken;
 
             try {
-                jwtt = jwt.verify(req.headers['x-auth-token'], RestAppServerBase.secretKey);
+                const bearerHeader = req.headers.authorization;
+                if (typeof bearerHeader !== 'undefined') {
+                    const bearer = bearerHeader.split(' ');
+
+                    jwtt = jwt.verify(bearer[1], RestAppServerBase.secretKey);
+                }
             } catch (e) {
                 throw new AuthenticationError(e.name, e.message);
             }

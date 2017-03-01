@@ -8,7 +8,7 @@ import { RestExceptionBase } from './rest-exception-base';
 export class AuthenticationError extends RestExceptionBase {
     constructor(private errorName: string, errorMessage) {
         super('AuthenticationErrorException',
-            `Not able to authenticate (${errorName})`,
+            `Unable to authenticate (${errorName})`,
             401);
         this.additionalProperties.errorName = errorName;
         this.additionalProperties.errorMessage = errorMessage;

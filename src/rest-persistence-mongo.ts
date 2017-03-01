@@ -43,7 +43,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         }
 
         if (useAuthentication) {
-            // schemaOwner/manager28
+
             this.dbMongoUrl = `mongodb://${this.dbUsername}:${this.dbUserPassword}@${this.dbHostNamePort}/`;
 
             this.dbMongoOptions = '?authSource=admin';
