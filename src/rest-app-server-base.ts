@@ -111,6 +111,8 @@ export class RestAppServerBase {
                     const bearer = bearerHeader.split(' ');
 
                     jwtt = jwt.verify(bearer[1], RestAppServerBase.secretKey);
+                } else {
+                    throw new Error('cant login without token');
                 }
             } catch (e) {
                 throw new AuthenticationError(e.name, e.message);
