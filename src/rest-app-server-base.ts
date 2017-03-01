@@ -260,15 +260,15 @@ export class RestAppServerBase {
         if (this.isDevelopment) {
             // write all requests and responses to log (Morgan Library)
             this.thisServer.use(reqlogger('dev'));
-
-            // Allow Cross Site Requests
-            this.thisServer.use((req, res, next) => {
-                res.header('Access-Control-Allow-Origin', '*');
-                res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-                res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-                next();
-            });
         }
+
+        // Allow Cross Site Requests
+        this.thisServer.use((req, res, next) => {
+            res.header('Access-Control-Allow-Origin', '*');
+            res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+            res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+            next();
+        });
         RestAppServerBase.logger.svc.debug('configMiddleware() exit');
     }
 
