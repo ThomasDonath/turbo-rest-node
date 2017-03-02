@@ -1,11 +1,11 @@
 {
   "name": "turbo-rest-node",
   "description": "base to implement REST with Node.js and Express",
-  "version": "0.26.3",
+  "version": "0.26.4",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ThomasDonath/turbo-rest-node",
-    "license": "MIT"
+    "url": "https://github.com/ThomasDonath/turbo-rest-node"
   },
   "author": {
     "name": "ThomasDonath",
@@ -21,20 +21,21 @@
   },
   "private": false,
   "dependencies": {
-    "body-parser": "^1.16.1",
-    "winston": "^2.3.1",
+    "body-parser": "^1.17.0",
     "errorhandler": "^1.5.0",
-    "express": "^4.14.1",
+    "express": "^4.15.0",
+    "jsonwebtoken": "^7.3.0",
     "method-override": "^2.3.7",
-    "morgan": "^1.8.1",
     "mongodb": "^2.2.24",
-    "jsonwebtoken": "^7.3.0"
+    "morgan": "^1.8.1",
+    "winston": "^2.3.1",
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
-    "tslint": "^4.4.2",
+    "tslint": "^4.5.1",
     "typescript": "^2.2.1",
     "@types/express": "^4.0.35",
-    "@types/body-parser": "^0.0.33",
+    "@types/body-parser": "^0.0.34",
     "@types/winston": "^2.2.0",
     "@types/errorhandler": "^0.0.30",
     "@types/method-override": "^0.0.29",
