@@ -4,6 +4,10 @@ npm:
 	rm -rf node_modules/* || true
 	npm install
 
+globals:
+	cp ../projectconfig/tsconfig-global-node.json ./tsconfig-global-node.json
+#	cp ../projectconfig/Dockerfile.api-build ./Dockerfile.build
+
 clean:
 	rm -r lib/* || true
 

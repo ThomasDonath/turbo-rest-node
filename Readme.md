@@ -48,7 +48,6 @@ If no key given, in development mode we set user=test and tenant=test-tenant. Bu
 ## How to set up for development
 
 * git clone
-* prepare tsconfig "../tsconfig-global-node.json" with your prefered settings or copy my "./tsconfig-global-node.td.json"
 * npm install
 * make xyz (yes, sorry: I've used the good old make - see the make targets in it)
 
