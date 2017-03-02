@@ -1,6 +1,6 @@
 build:
 
-npm:
+npm: globals
 	rm -rf node_modules/* || true
 	npm install
 
