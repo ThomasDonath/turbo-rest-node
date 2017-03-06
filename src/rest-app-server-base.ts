@@ -98,32 +98,42 @@ export class RestAppServerBase {
     protected getAuthentication(req: express.Request, res: express.Response, next) {
         RestAppServerBase.logger.svc.debug('getAuthentication() entry');
 
-        // https://www.npmjs.com/package/jsonwebtoken
-        if (!RestAppServerBase.secretKey) {
-            req.params.user = 'test';
-            req.params.tenant = 'test-tenant';
-        } else {
-            let jwtt: IJwtToken;
+        try {
+            // https://www.npmjs.com/package/jsonwebtoken
+            if (!RestAppServerBase.secretKey) {
+                req.params.user = 'test';
+                req.params.tenant = 'test-tenant';
+            } else {
+                let jwtt: IJwtToken;
 
-            try {
-                const bearerHeader = req.headers.authorization;
-                if (typeof bearerHeader !== 'undefined') {
-                    const bearer = bearerHeader.split(' ');
+                try {
+                    const bearerHeader = req.headers.authorization;
+                    if (typeof bearerHeader !== 'undefined') {
+                        const bearer = bearerHeader.split(' ');
 
-                    jwtt = jwt.verify(bearer[1], RestAppServerBase.secretKey);
-                } else {
-                    throw new Error('cant login without token');
+                        jwtt = jwt.verify(bearer[1], RestAppServerBase.secretKey);
+                    } else {
+                        throw new Error('cant login without token');
+                    }
+                } catch (e) {
+                    throw new AuthenticationError(e.name, e.message);
                 }
-            } catch (e) {
-                throw new AuthenticationError(e.name, e.message);
+
+                req.params.user = jwtt.username;
+                req.params.tenant = jwtt.tenant;
             }
+            RestAppServerBase.logger.svc.debug(`getAuthentication() exit: Tenant="${req.params.tenant}"`);
 
-            req.params.user = jwtt.username;
-            req.params.tenant = jwtt.tenant;
+            next();
+
+        } catch (err) {
+            RestAppServerBase.logger.svc.error(`Error="${err.stack}"`);
+            if (err instanceof RestExceptionBase) {
+                res = err.giveResponse(res);
+            } else {
+                res = RestAppServerBase.ServerErrorResponse(err.message, err.stack, res);
+            }
         }
-        RestAppServerBase.logger.svc.debug(`getAuthentication() exit: Tenant="${req.params.tenant}"`);
-
-        next();
     }
 
     /**
