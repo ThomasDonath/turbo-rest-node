@@ -107,28 +107,18 @@ export abstract class RestPersistenceAbstract {
      */
     public abstract healthCheck<T extends IRestPayloadBase>(tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
 
-    protected getAuditData(oldRowVersion: number): IAuditRecord {
-        return {
-            changedAt: new Date(),
-            changedBy: 'Anonymous',
-            rowVersion: ++oldRowVersion,
-        };
-    }
     /**
-     * @function getConnectString
-     * @description return the connect string (including username/password) for the given database and tenant. Must be overloaded!
+     * @description compute a new audit record with loged in user and an incremented row version
+     * @param oldRowVersion auditRecord.rowVersion as queried from the database
+     * @param logUsername username loged in from request.params.user (has to be set in authentication)
      */
-    protected abstract getConnectString(tenantId: string): string;
+    protected setAuditData(oldRowVersion: number, logUsername: string): IAuditRecord {
+        if (!logUsername) {
+            throw new MissingAuditData();
+        }
 
-    /**
-     * @function getRowVersionNumber
-     * @description return the new/next row version number based on a given audit record
-     */
-    protected getRowVersionNumber(auditRecord: IAuditRecord): number {
-        let result: number;
         try {
-            result = auditRecord.rowVersion;
-            if (!(result)) {
+            if (!(oldRowVersion + 1)) {
                 throw new MissingAuditData();
             }
         } catch (e) {
@@ -138,6 +128,16 @@ export abstract class RestPersistenceAbstract {
                 throw (e);
             }
         }
-        return result;
+
+        return {
+            changedAt: new Date(),
+            changedBy: logUsername,
+            rowVersion: ++oldRowVersion,
+        };
     }
+    /**
+     * @function getConnectString
+     * @description return the connect string (including username/password) for the given database and tenant. Must be overloaded!
+     */
+    protected abstract getConnectString(tenantId: string): string;
 }

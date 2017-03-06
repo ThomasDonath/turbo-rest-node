@@ -127,15 +127,6 @@ export class RestAppServerBase {
     }
 
     /**
-     * @function getDemoTenant
-     * @description Express middleware handler to get DEMO or TEST tenant
-     */
-    protected getDemoTenant(req: express.Request, res: express.Response, next) {
-        req.params.tenant = 'demo';
-        next();
-    }
-
-    /**
      * @function addHandlerGet
      * @description map an URL with verb GET to a method from the injected application controller
      * @param inUrl URL to be mapped

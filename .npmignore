@@ -1,8 +1,8 @@
 .vscode
 src
-typings
 .editorconfig
 .npmignore
 makefile
 *.json
 *.tgz
+**/sample

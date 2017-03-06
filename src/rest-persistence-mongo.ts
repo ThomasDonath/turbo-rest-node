@@ -5,6 +5,7 @@ import { IRestPayloadBase } from './i-rest-payload-base';
 import { ITurboLogger } from './i-turbo-logger';
 import { RestPersistenceAbstract } from './rest-persistence-abstract';
 
+import { MissingAuditData } from './missing-audit-data';
 import { MissingTenantId } from './missing-tenant-id';
 import { RecordExistsAlready } from './record-already-exists';
 import { RecordChangedByAnotherUser } from './record-changed-by-another-user';
@@ -128,7 +129,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         RestPersistenceAbstract.logger.svc.debug(`insert ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}")`);
 
         thisRow.id = thisRow.id || uuid.v4();
-        thisRow.auditRecord = getMySelf().getAuditData(0);
+        thisRow.auditRecord = getMySelf().setAuditData(0, thisRow.auditRecord.changedBy);
         thisRow.deleted = false;
         thisRow.tenantId = tenantId;
 
@@ -201,10 +202,9 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
 
         return new Promise((fulfill, reject) => {
             if (!tenantId) { throw new MissingTenantId(); };
+            if (!thisRow.auditRecord) { throw new MissingAuditData(); };
 
             let dbConnection: Db;
-
-            let rowVersionNumber = getMySelf().getRowVersionNumber(thisRow.auditRecord);
 
             MongoClient.connect(getMySelf().getConnectString(tenantId))
                 .then((db) => {
@@ -218,7 +218,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                         queryPredicate = { 'id': thisRow.id, 'tenantId': tenantId, 'auditRecord.rowVersion': orgRowVersion };
                     }
 
-                    thisRow.auditRecord = getMySelf().getAuditData(thisRow.auditRecord.rowVersion);
+                    thisRow.auditRecord = getMySelf().setAuditData(thisRow.auditRecord.rowVersion, thisRow.auditRecord.changedBy);
 
                     if (getMySelf().doMarkDeleted) {
                         thisRow.deleted = true;
@@ -260,8 +260,6 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         return new Promise((fulfill, reject) => {
             if (!tenantId) { throw new MissingTenantId(); };
 
-            let rowVersionNumber = getMySelf().getRowVersionNumber(thisRow.auditRecord);
-
             MongoClient.connect(getMySelf().getConnectString(tenantId))
                 .then((db) => {
                     dbConnection = db;
@@ -269,7 +267,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     let orgRowVersion = thisRow.auditRecord.rowVersion;
                     let queryPredicate = { 'id': thisRow.id, 'tenantId': tenantId, 'auditRecord.rowVersion': orgRowVersion };
 
-                    thisRow.auditRecord = getMySelf().getAuditData(thisRow.auditRecord.rowVersion);
+                    thisRow.auditRecord = getMySelf().setAuditData(thisRow.auditRecord.rowVersion, thisRow.auditRecord.changedBy);
                     thisRow.deleted = false;
                     thisRow.tenantId = tenantId;
 
