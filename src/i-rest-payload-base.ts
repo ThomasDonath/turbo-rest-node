@@ -9,5 +9,4 @@ export interface IRestPayloadBase {
     tenantId?: string;
     deleted?: boolean;
     auditRecord?: IAuditRecord;
-    data?;
 };

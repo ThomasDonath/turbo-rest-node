@@ -292,7 +292,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
     public healthCheck(inTenantId: string, getMySelf: () => RestPersistenceMongo): Promise<IRestPayloadBase> {
         RestPersistenceAbstract.logger.svc.debug(`health check entry")`);
 
-        let dummyRow: IRestPayloadBase = { auditRecord: { changedAt: new Date(), changedBy: 'system', rowVersion: 0 }, deleted: false, data: {}, id: 'emptyId', tenantId: inTenantId };
+        let dummyRow: IRestPayloadBase = { auditRecord: { changedAt: new Date(), changedBy: 'system', rowVersion: 0 }, deleted: false, id: 'emptyId', tenantId: inTenantId };
         let dbConnection: Db;
 
         return new Promise((fulfill, reject) => {
@@ -302,7 +302,8 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     dbConnection = db;
                     dbConnection.close();
 
-                    dummyRow.data.message = 'I\'m alive';
+                    // tslint:disable-next-line:no-string-literal
+                    dummyRow['message'] = 'I\'m alive';
                     fulfill(dummyRow);
                 })
                 .catch((err) => {
