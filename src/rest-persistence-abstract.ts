@@ -91,7 +91,7 @@ export abstract class RestPersistenceAbstract {
      * @param tenantId ID for the requested tenant. Mandatory!
      * @param getMySelf reference to a function returning the persistence constroller instance. Mandatory!
      */
-    public abstract doDelete<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
+    public abstract doDelete(idIn: string, rowVersionIn: number, changedByIn: string, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<boolean>;
     /**
      * @function doUpdate
      * @description update a row, must exists

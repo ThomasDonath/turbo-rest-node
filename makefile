@@ -26,3 +26,6 @@ securityCheck:
 
 test: build
 	npm test
+
+startdb:
+	docker run -d -p 27017:27017 --name test-mongo my-mongo

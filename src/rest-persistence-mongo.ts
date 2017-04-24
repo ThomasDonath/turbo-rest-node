@@ -53,20 +53,20 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         }
     }
 
-    public doQBE<T extends IRestPayloadBase>(predicate, sortCriteria, tenantId: string, skipRows: number, limitRows: number, getMySelf): Promise<T> {
-        RestPersistenceAbstract.logger.svc.debug(`doQBE ${getMySelf().COLLECTIONNAME} ("${predicate}", "${tenantId}")`);
+    public doQBE<T extends IRestPayloadBase>(predicate, sortCriteria, tenantIdIn: string, skipRows: number, limitRows: number, getMySelf): Promise<T> {
+        RestPersistenceAbstract.logger.svc.debug(`doQBE ${getMySelf().COLLECTIONNAME} ("${predicate}", "${tenantIdIn}")`);
 
         return new Promise((fulfill, reject) => {
-            if (!tenantId) { throw new MissingTenantId(); };
+            if (!tenantIdIn) { throw new MissingTenantId(); };
 
             let dbConnection: Db;
             let queryPredicate = predicate;
             let rowLimit = limitRows || this.rowLimit;
 
             queryPredicate.deleted = false;
-            queryPredicate.tenantId = tenantId;
+            queryPredicate.tenantId = tenantIdIn;
 
-            MongoClient.connect(getMySelf().getConnectString(tenantId))
+            MongoClient.connect(getMySelf().getConnectString(tenantIdIn))
                 .then((db) => {
                     dbConnection = db;
 
@@ -89,15 +89,15 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         });
     }
 
-    public doGet<T extends IRestPayloadBase>(idIn: string, tenantId: string, getMySelf: () => RestPersistenceMongo): Promise<T> {
-        RestPersistenceAbstract.logger.svc.debug(`get ${getMySelf().COLLECTIONNAME} ("${idIn}", "${tenantId}")`);
+    public doGet<T extends IRestPayloadBase>(idIn: string, tenantIdIn: string, getMySelf: () => RestPersistenceMongo): Promise<T> {
+        RestPersistenceAbstract.logger.svc.debug(`get ${getMySelf().COLLECTIONNAME} ("${idIn}", "${tenantIdIn}")`);
 
         return new Promise((fulfill, reject) => {
-            if (!tenantId) { throw new MissingTenantId(); };
+            if (!tenantIdIn) { throw new MissingTenantId(); };
 
             let dbConnection: Db;
             let thisId = idIn;
-            let thisTenant = tenantId;
+            let thisTenant = tenantIdIn;
 
             MongoClient.connect(getMySelf().getConnectString(thisTenant))
                 .then((db) => {
@@ -125,13 +125,13 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         });
     }
 
-    public doInsert<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceMongo): Promise<T> {
-        RestPersistenceAbstract.logger.svc.debug(`insert ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}")`);
+    public doInsert<T extends IRestPayloadBase>(thisRow: T, tenantIdIn: string, getMySelf: () => RestPersistenceMongo): Promise<T> {
+        RestPersistenceAbstract.logger.svc.debug(`insert ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantIdIn}")`);
 
         thisRow.id = thisRow.id || uuid.v4();
         thisRow.auditRecord = getMySelf().setAuditData(0, thisRow.auditRecord.changedBy);
         thisRow.deleted = false;
-        thisRow.tenantId = tenantId;
+        thisRow.tenantId = tenantIdIn;
 
         return new Promise((fulfill, reject) => {
             if (!thisRow.tenantId) { throw new MissingTenantId(); };
@@ -139,7 +139,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
             let dbConnection: Db;
             let doCreateIndex: boolean = false;
 
-            MongoClient.connect(getMySelf().getConnectString(tenantId))
+            MongoClient.connect(getMySelf().getConnectString(tenantIdIn))
                 .then((db) => {
                     dbConnection = db;
 
@@ -186,7 +186,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     fulfill(thisRow);
                 })
                 .catch((err) => {
-                    RestPersistenceAbstract.logger.svc.error(`insert ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}"): ${err}`);
+                    RestPersistenceAbstract.logger.svc.error(`insert ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantIdIn}"): ${err}`);
                     if (dbConnection) { dbConnection.close(); };
                     reject(err);
                 });
@@ -197,32 +197,39 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
      * @description @see RestPersistenceAbstract.doDelete
      * @param noLock sometimes we want to delete rows no matter of read consistence. then we pass TRUE here
      */
-    public doDelete<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceMongo, noLock: boolean = false): Promise<T> {
-        RestPersistenceAbstract.logger.svc.debug(`delete ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}")`);
+    public doDelete(idIn: string, rowVersionIn: number, changedByIn: string, tenantIdIn: string, getMySelf: () => RestPersistenceMongo, noLockIn: boolean = false): Promise<boolean> {
+
+        RestPersistenceAbstract.logger.svc.debug(`delete ${getMySelf().COLLECTIONNAME} ("${idIn}", "${tenantIdIn}")`);
+
+        const thisId: string = idIn;
+        const thisRowVersion: number = rowVersionIn;
+        const thisChangedBy: string = changedByIn;
+        const thisTenantIdIn: string = tenantIdIn;
+        const noLock: boolean = noLockIn;
 
         return new Promise((fulfill, reject) => {
-            if (!tenantId) { throw new MissingTenantId(); };
-            if (!thisRow.auditRecord) { throw new MissingAuditData(); };
+            if (!thisTenantIdIn) { throw new MissingTenantId(); };
+            if (!noLock && !thisRowVersion) { throw new MissingAuditData(); };
 
             let dbConnection: Db;
 
-            MongoClient.connect(getMySelf().getConnectString(tenantId))
+            MongoClient.connect(getMySelf().getConnectString(thisTenantIdIn))
                 .then((db) => {
                     dbConnection = db;
 
                     let queryPredicate;
-                    let orgRowVersion = thisRow.auditRecord.rowVersion;
                     if (noLock) {
-                        queryPredicate = { id: thisRow.id };
+                        queryPredicate = { id: thisId, tenantId: thisTenantIdIn };
                     } else {
-                        queryPredicate = { 'id': thisRow.id, 'tenantId': tenantId, 'auditRecord.rowVersion': orgRowVersion };
+                        queryPredicate = { 'id': thisId, 'tenantId': thisTenantIdIn, 'auditRecord.rowVersion': thisRowVersion };
                     }
 
-                    thisRow.auditRecord = getMySelf().setAuditData(thisRow.auditRecord.rowVersion, thisRow.auditRecord.changedBy);
-
                     if (getMySelf().doMarkDeleted) {
-                        thisRow.deleted = true;
-                        return dbConnection.collection(getMySelf().COLLECTIONNAME).replaceOne(queryPredicate, thisRow);
+                        return dbConnection.collection(getMySelf().COLLECTIONNAME).update(queryPredicate, {
+                            $currentDate: { 'auditRecord.changedAt': { $type: 'timestamp' } },
+                            $inc: { 'auditRecord.rowVersion': 1 },
+                            $set: { 'auditRecord.changedBy': thisChangedBy, 'deleted': true },
+                        });
                     } else {
                         return dbConnection.collection(getMySelf().COLLECTIONNAME).deleteOne(queryPredicate);
                     }
@@ -234,18 +241,18 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     if (!noLock) {
                         if (getMySelf().doMarkDeleted) {
                             if (result.matchedCount === 0) {
-                                throw new RecordChangedByAnotherUser(thisRow.id);
+                                throw new RecordChangedByAnotherUser(thisId);
                             }
                         } else {
                             if (result.deletedCount === 0) {
-                                throw new RecordChangedByAnotherUser(thisRow.id);
+                                throw new RecordChangedByAnotherUser(thisId);
                             }
                         }
                     }
-                    fulfill(thisRow);
+                    fulfill(true);
                 })
                 .catch((err) => {
-                    RestPersistenceAbstract.logger.svc.warn(`delete ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}"): ${err}`);
+                    RestPersistenceAbstract.logger.svc.warn(`delete ${getMySelf().COLLECTIONNAME} ("${thisId}", "${thisTenantIdIn}"): ${err}`);
                     if (dbConnection) { dbConnection.close(); };
                     reject(err);
                 });

@@ -19,3 +19,4 @@ export { TooManyRows } from './too-many-rows';
 export { RecordExistsAlready } from './record-already-exists';
 export { NotNullViolated } from './not-null-violated';
 export { AuthenticationError } from './authentication-error';
+export { MissingAuditData } from './missing-audit-data';
