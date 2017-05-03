@@ -10,5 +10,5 @@ export class RecordExistsAlready extends RestExceptionBase {
         super('RecordExistsAlready', `A record with the same primary or unique key value already exists. Inserted or last change at ${inChangedAt.toLocaleString()} by ${inChangedBy}.`, 409);
         this.additionalProperties.changedAt = inChangedAt;
         this.additionalProperties.changedby = inChangedBy;
-    };
-};
+    }
+}

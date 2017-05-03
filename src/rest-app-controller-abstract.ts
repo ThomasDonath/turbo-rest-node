@@ -17,7 +17,7 @@ export abstract class RestAppControllerAbstract {
 
     public healthCheck(request: express.Request, getControllerFn: () => RestAppControllerAbstract): Promise<IRestPayloadBase> {
 
-        let tenantId: string = request.params.tenant || '0';
+        const tenantId: string = request.params.tenant || '0';
 
         RestAppControllerAbstract.logger.svc.debug(`healthCheck "${tenantId}")`);
 

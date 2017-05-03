@@ -18,8 +18,8 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
     protected dbUsername: string;
     protected dbUserPassword: string;
 
-    protected dbMongoUrl: String;
-    private dbMongoOptions: String;
+    protected dbMongoUrl: string;
+    private dbMongoOptions: string;
     private dontCheckIndexes: boolean = false;
 
     /**
@@ -57,11 +57,11 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         RestPersistenceAbstract.logger.svc.debug(`doQBE ${getMySelf().COLLECTIONNAME} ("${predicate}", "${tenantIdIn}")`);
 
         return new Promise((fulfill, reject) => {
-            if (!tenantIdIn) { throw new MissingTenantId(); };
+            if (!tenantIdIn) { throw new MissingTenantId(); }
 
             let dbConnection: Db;
-            let queryPredicate = predicate;
-            let rowLimit = limitRows || this.rowLimit;
+            const queryPredicate = predicate;
+            const rowLimit = limitRows || this.rowLimit;
 
             queryPredicate.deleted = false;
             queryPredicate.tenantId = tenantIdIn;
@@ -83,7 +83,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                     fulfill(docs);
                 })
                 .catch((err) => {
-                    if (dbConnection) { dbConnection.close(); };
+                    if (dbConnection) { dbConnection.close(); }
                     reject(err);
                 });
         });
@@ -93,17 +93,17 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         RestPersistenceAbstract.logger.svc.debug(`get ${getMySelf().COLLECTIONNAME} ("${idIn}", "${tenantIdIn}")`);
 
         return new Promise((fulfill, reject) => {
-            if (!tenantIdIn) { throw new MissingTenantId(); };
+            if (!tenantIdIn) { throw new MissingTenantId(); }
 
             let dbConnection: Db;
-            let thisId = idIn;
-            let thisTenant = tenantIdIn;
+            const thisId = idIn;
+            const thisTenant = tenantIdIn;
 
             MongoClient.connect(getMySelf().getConnectString(thisTenant))
                 .then((db) => {
                     dbConnection = db;
 
-                    let q = { id: thisId, tenantId: thisTenant };
+                    const q = { id: thisId, tenantId: thisTenant };
 
                     return dbConnection.collection(getMySelf().COLLECTIONNAME).find(q).toArray();
                 })
@@ -119,7 +119,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                 })
                 .catch((err) => {
                     RestPersistenceAbstract.logger.svc.error(`get ${getMySelf().COLLECTIONNAME} ("${thisId}", "${thisTenant}"): ${err}`);
-                    if (dbConnection) { dbConnection.close(); };
+                    if (dbConnection) { dbConnection.close(); }
                     reject(err);
                 });
         });
@@ -134,7 +134,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         thisRow.tenantId = tenantIdIn;
 
         return new Promise((fulfill, reject) => {
-            if (!thisRow.tenantId) { throw new MissingTenantId(); };
+            if (!thisRow.tenantId) { throw new MissingTenantId(); }
 
             let dbConnection: Db;
             let doCreateIndex: boolean = false;
@@ -187,7 +187,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                 })
                 .catch((err) => {
                     RestPersistenceAbstract.logger.svc.error(`insert ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantIdIn}"): ${err}`);
-                    if (dbConnection) { dbConnection.close(); };
+                    if (dbConnection) { dbConnection.close(); }
                     reject(err);
                 });
         });
@@ -208,8 +208,8 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         const noLock: boolean = noLockIn;
 
         return new Promise((fulfill, reject) => {
-            if (!thisTenantIdIn) { throw new MissingTenantId(); };
-            if (!noLock && !thisRowVersion) { throw new MissingAuditData(); };
+            if (!thisTenantIdIn) { throw new MissingTenantId(); }
+            if (!noLock && !thisRowVersion) { throw new MissingAuditData(); }
 
             let dbConnection: Db;
 
@@ -253,7 +253,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                 })
                 .catch((err) => {
                     RestPersistenceAbstract.logger.svc.warn(`delete ${getMySelf().COLLECTIONNAME} ("${thisId}", "${thisTenantIdIn}"): ${err}`);
-                    if (dbConnection) { dbConnection.close(); };
+                    if (dbConnection) { dbConnection.close(); }
                     reject(err);
                 });
         });
@@ -265,14 +265,14 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
         let dbConnection: Db;
 
         return new Promise((fulfill, reject) => {
-            if (!tenantId) { throw new MissingTenantId(); };
+            if (!tenantId) { throw new MissingTenantId(); }
 
             MongoClient.connect(getMySelf().getConnectString(tenantId))
                 .then((db) => {
                     dbConnection = db;
 
-                    let orgRowVersion = thisRow.auditRecord.rowVersion;
-                    let queryPredicate = { 'id': thisRow.id, 'tenantId': tenantId, 'auditRecord.rowVersion': orgRowVersion };
+                    const orgRowVersion = thisRow.auditRecord.rowVersion;
+                    const queryPredicate = { 'id': thisRow.id, 'tenantId': tenantId, 'auditRecord.rowVersion': orgRowVersion };
 
                     thisRow.auditRecord = getMySelf().setAuditData(thisRow.auditRecord.rowVersion, thisRow.auditRecord.changedBy);
                     thisRow.deleted = false;
@@ -290,7 +290,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                 })
                 .catch((err) => {
                     RestPersistenceAbstract.logger.svc.error(`update ${getMySelf().COLLECTIONNAME} ("${thisRow.id}", "${tenantId}"): ${err}`);
-                    if (dbConnection) { dbConnection.close(); };
+                    if (dbConnection) { dbConnection.close(); }
                     reject(err);
                 });
         });
@@ -299,7 +299,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
     public healthCheck(inTenantId: string, getMySelf: () => RestPersistenceMongo): Promise<IRestPayloadBase> {
         RestPersistenceAbstract.logger.svc.debug(`health check entry")`);
 
-        let dummyRow: IRestPayloadBase = { auditRecord: { changedAt: new Date(), changedBy: 'system', rowVersion: 0 }, deleted: false, id: 'emptyId', tenantId: inTenantId };
+        const dummyRow: IRestPayloadBase = { auditRecord: { changedAt: new Date(), changedBy: 'system', rowVersion: 0 }, deleted: false, id: 'emptyId', tenantId: inTenantId };
         let dbConnection: Db;
 
         return new Promise((fulfill, reject) => {
@@ -315,7 +315,7 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
                 })
                 .catch((err) => {
                     RestPersistenceAbstract.logger.svc.error(`health check, "${inTenantId}"): ${err}`);
-                    if (dbConnection) { dbConnection.close(); };
+                    if (dbConnection) { dbConnection.close(); }
                     reject(err);
                 });
         });

@@ -9,5 +9,5 @@ export class TooManyRows extends RestExceptionBase {
     constructor(private notFoundId: string) {
         super('TooManyRows', `Found more than one row for the given ID ${notFoundId} (unique primary key value). Most often an internal error`, 501);
         this.additionalProperties.id = notFoundId;
-    };
-};
+    }
+}

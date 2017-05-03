@@ -28,6 +28,6 @@ export class RestExceptionBase extends Error {
         res.write(JSON.stringify({ code: this.httpCode, exceptionName: this.name, internalMessage: this.message, additionalProperties: this.additionalProperties }));
         res.end();
         return (res);
-    };
-    public toString() { return (`Exception ${this.name}: ${this.message}`); };
+    }
+    public toString() { return (`Exception ${this.name}: ${this.message}`); }
 }

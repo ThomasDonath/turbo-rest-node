@@ -16,13 +16,13 @@ lint:
 
 build: clean lint
 	npm run build
-
-pack: build
 	npm pack
-#	npm publish
+
+publish: build
+	npm publish
 
 securityCheck:
-	retire --path .
+	retire -v -
 
 test: build
 	npm test

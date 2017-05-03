@@ -10,5 +10,5 @@ export class MissingAuditData extends RestExceptionBase {
 
     constructor() {
         super('MissingAuditData', 'Internal error: request without audit data', 500);
-    };
-};
+    }
+}

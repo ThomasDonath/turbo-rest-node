@@ -7,4 +7,4 @@ import * as loggerLib from 'winston';
  */
 export interface ITurboLogger {
     svc: loggerLib.LoggerInstance;
-};
+}

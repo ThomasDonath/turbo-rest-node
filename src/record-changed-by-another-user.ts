@@ -12,5 +12,5 @@ export class RecordChangedByAnotherUser extends RestExceptionBase {
              User should refresh the view and repeat the change.`,
             409);
         this.additionalProperties.id = notFoundId;
-    };
-};
+    }
+}

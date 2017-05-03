@@ -7,7 +7,7 @@ import { SampleAppController } from './sample-app-controller';
 import { SampleAppRestServer } from './sample-app-rest-server';
 
 // configure logging
-let myLogger: ITurboLogger = { svc: null };
+const myLogger: ITurboLogger = { svc: null };
 myLogger.svc = new (loggerLib.Logger)({
     transports: [
         new (loggerLib.transports.Console)({
@@ -24,8 +24,8 @@ myLogger.svc = new (loggerLib.Logger)({
 });
 myLogger.svc.level = 'info';
 
-let samplePersistence = new RestPersistenceMongo(true, 'sample', myLogger, 'dbPerTenant', null);
-let sampleController = new SampleAppController(samplePersistence, myLogger);
-let sampleServer = new SampleAppRestServer('/', sampleController, myLogger);
+const samplePersistence = new RestPersistenceMongo(true, 'sample', myLogger, 'dbPerTenant', null);
+const sampleController = new SampleAppController(samplePersistence, myLogger);
+const sampleServer = new SampleAppRestServer('/', sampleController, myLogger);
 
 sampleServer.main();

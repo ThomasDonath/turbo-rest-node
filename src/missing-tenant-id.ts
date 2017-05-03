@@ -10,5 +10,5 @@ export class MissingTenantId extends RestExceptionBase {
 
     constructor() {
         super('MissingTenantId', 'Internal error: request without tenant ID', 500);
-    };
-};
+    }
+}
