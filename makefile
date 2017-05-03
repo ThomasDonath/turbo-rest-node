@@ -22,7 +22,7 @@ publish: build
 	npm publish
 
 securityCheck:
-	retire -v -
+	retire -v
 
 test: build
 	npm test
