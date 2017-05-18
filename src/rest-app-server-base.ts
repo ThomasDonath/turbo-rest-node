@@ -240,6 +240,7 @@ export class RestAppServerBase {
     }
 
     private configServer() {
+
         RestAppServerBase.logger.svc.debug('configServer() entry');
 
         this.thisServer.use(bodyParser.json());
@@ -251,6 +252,14 @@ export class RestAppServerBase {
         RestAppServerBase.logger.svc.info('its development? ' + this.isDevelopment);
 
         this.thisServer.disable('x-powered-by');
+
+        function exitHandler(name: string) {
+            RestAppServerBase.logger.svc.info(`got signal SIGINT or SIGTERM... shutdown...`);
+            process.exit(0);
+            return;
+        }
+        process.on('SIGINT', exitHandler.bind('SIGINT'));
+        process.on('SIGTERM', exitHandler.bind('SIGTERM'));
 
         RestAppServerBase.logger.svc.debug('configServer exit');
     }
