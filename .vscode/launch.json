@@ -15,7 +15,7 @@
                 "--nolazy"
             ],
             "env": {
-                "NODE_ENV": "development",
+                "APPL_ENV": "development",
                 "DEBUG": ""
             },
             "console": "internalConsole",

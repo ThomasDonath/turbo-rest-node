@@ -43,7 +43,7 @@ export class RestAppServerBase {
 
     private isDevelopment: boolean;
     private confListenPort: string;
-    private env: string;
+    private APPL_ENV: string;
 
     /**
      * @constructor
@@ -57,8 +57,17 @@ export class RestAppServerBase {
 
         this.confListenPort = process.env.CONF_LISTEN_PORT || 8080;
 
-        this.env = process.env.NODE_ENV || 'development';
-        this.isDevelopment = (this.env === 'development');
+        if ((!process.env.APPL_ENV) || ((process.env.APPL_ENV !== 'development') && (process.env.APPL_ENV !== 'production'))) {
+            throw new Error('APPL_ENV not set. Cant start in unspecified environment - use "development" or "production"!');
+        }
+        this.APPL_ENV = process.env.APPL_ENV;
+        this.isDevelopment = (this.APPL_ENV === 'development');
+
+        if (this.isDevelopment) {
+            RestAppServerBase.logger.svc.level = 'debug';
+        } else {
+            RestAppServerBase.logger.svc.level = 'info';
+        }
 
         RestAppServerBase.secretKey = process.env.CONF_SECRET_KEY;
         if (!RestAppServerBase.secretKey) {
@@ -81,6 +90,7 @@ export class RestAppServerBase {
         RestAppServerBase.logger.svc.debug('main() entry');
 
         RestAppServerBase.logger.svc.info(`${new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString()} HTTP server starting up...`);
+        RestAppServerBase.logger.svc.info(`Image built at ${process.env.IMAGE_BUILD_DATE} commit# ${process.env.IMAGE_COMMIT_REF_SHA} image tag ${process.env.IMAGE_TAG}`);
 
         this.configServer();
         this.configMiddleware();
@@ -248,7 +258,7 @@ export class RestAppServerBase {
 
         RestAppServerBase.logger.svc.info('using configuration:');
         RestAppServerBase.logger.svc.info('port: %d', this.confListenPort);
-        RestAppServerBase.logger.svc.info('mode: %s', this.env);
+        RestAppServerBase.logger.svc.info('mode: %s', this.APPL_ENV);
         RestAppServerBase.logger.svc.info('its development? ' + this.isDevelopment);
 
         this.thisServer.disable('x-powered-by');

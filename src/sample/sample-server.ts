@@ -22,7 +22,6 @@ myLogger.svc = new (loggerLib.Logger)({
         }),
     ],
 });
-myLogger.svc.level = 'info';
 
 const samplePersistence = new RestPersistenceMongo(true, 'sample', myLogger, 'dbPerTenant', null);
 const sampleController = new SampleAppController(samplePersistence, myLogger);
