@@ -1,0 +1,20 @@
+# Build library and push to NPM
+
+image: node:7.9
+
+cache:
+  paths:
+  - node_modules/
+
+stages:
+    - compile
+
+compile:
+  stage: compile
+  script:
+    - npm install
+    - npm run lint
+# TODO: Unit Tests
+    - npm run build
+    - npm pack
+# TODO:    - npm publish
