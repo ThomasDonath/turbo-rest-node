@@ -17,6 +17,7 @@
     "start": "node lib/sample/sample-server.js",
     "build": "tsc",
     "lint": "tslint \"src/**/*.ts\"",
+    "unittest": "mocha -r ts-node/register src/*.spec.ts",
     "test": "(export CONF_DB_SERVERNAME_PORT=localhost:27017; export CONF_DB_USERNAME=schemaOwner; export CONF_DB_USERPASSWORD=manager28; node lib/sample/sample-server.js &); sleep 2; curl -v localhost:8080/ping; pkill node"
   },
   "private": false,
@@ -32,14 +33,18 @@
     "winston": "~2.3.1"
   },
   "devDependencies": {
+    "chai": "~3.5.0",
+    "mocha": "~3.4.1",
     "tslint": "~5.2.0",
     "typescript": "~2.3.2",
+    "ts-node": "~3.0.4",
     "@types/express": "~4.0.35",
     "@types/body-parser": "~1.16.3",
     "@types/winston": "~2.3.2",
     "@types/errorhandler": "~0.0.30",
     "@types/method-override": "~0.0.29",
     "@types/morgan": "~1.7.32",
-    "@types/jsonwebtoken": "~7.2.0"
+    "@types/jsonwebtoken": "~7.2.0",
+    "@types/mocha": "~2.2.41"
   }
 }

@@ -17,6 +17,7 @@ lint:
 build: clean lint
 	npm run build
 	npm pack
+	mv turbo*.tgz versions.out/.
 
 publish: build
 	npm publish

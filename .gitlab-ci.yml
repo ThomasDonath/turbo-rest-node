@@ -14,7 +14,7 @@ compile:
   script:
     - npm install
     - npm run lint
-# TODO: Unit Tests
+    - npm run unittest
     - npm run build
     - npm pack
 # TODO:    - npm publish
