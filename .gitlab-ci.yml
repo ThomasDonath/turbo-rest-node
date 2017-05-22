@@ -16,6 +16,6 @@ compile:
     - npm run lint
     - npm run unittest
     - npm prune --prod
-    - rm lib/*.spec.*
+    - rm lib/*.spec.* || true
     - npm pack
 # TODO:    - npm publish
