@@ -18,4 +18,4 @@ compile:
     - npm prune --prod
     - rm lib/*.spec.* || true
     - npm pack
-# TODO:    - npm publish
+    - npm publish
