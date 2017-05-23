@@ -18,4 +18,4 @@ compile:
     - rm lib/*.spec.* || true
     - npm pack
     - echo ${NPM_TOKEN} > .npmrc
-    - npm publish
+    - npm publish || true
