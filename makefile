@@ -3,6 +3,7 @@ build:
 npm: globals
 	rm -rf node_modules/* || true
 	npm install
+	sudo npm link
 
 globals:
 	cp ../projectconfig/tsconfig-global-node.json ./tsconfig-global-node.json
@@ -17,7 +18,7 @@ lint:
 build: clean lint
 	npm run build
 	npm pack
-	mv turbo*.tgz versions.out/.
+#	mv turbo*.tgz versions.out/.
 
 publish: build
 	npm publish
