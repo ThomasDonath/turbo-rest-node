@@ -16,6 +16,6 @@ compile:
     - npm run lint
     - npm run unittest
     - rm lib/*.spec.* || true
-    - npm pack
     - echo ${NPM_TOKEN} > .npmrc
+    - npm pack
     - npm publish
