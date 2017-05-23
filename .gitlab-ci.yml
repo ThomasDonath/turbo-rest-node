@@ -15,7 +15,6 @@ compile:
     - npm install
     - npm run lint
     - npm run unittest
-    - npm prune --prod
     - rm lib/*.spec.* || true
     - npm pack
     - echo ${NPM_TOKEN} > .npmrc
