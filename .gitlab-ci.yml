@@ -19,3 +19,8 @@ compile:
 
     - echo ${NPM_TOKEN} > .npmrc
     - npm publish
+
+  artifacts:
+    paths:
+      - lib/*
+      - package.json
