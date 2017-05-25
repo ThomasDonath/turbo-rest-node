@@ -4,7 +4,7 @@ image: node:7.10
 
 cache:
   paths:
-  - node_modules/
+    - node_modules/
 
 stages:
     - compile
@@ -18,5 +18,4 @@ compile:
     - rm lib/*.spec.* || true
 
     - echo ${NPM_TOKEN} > .npmrc
-    - npm pack
     - npm publish
