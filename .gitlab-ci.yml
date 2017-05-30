@@ -2,9 +2,9 @@
 
 image: node:7.10
 
-cache:
-  paths:
-    - node_modules/
+# cache:
+#   paths:
+#     - node_modules/
 
 stages:
     - compile
@@ -14,13 +14,10 @@ compile:
   script:
     - npm install
     - npm run lint
+    - npm run build
     - npm run unittest
     - rm lib/*.spec.* || true
 
     - echo ${NPM_TOKEN} > .npmrc
     - npm publish
 
-  artifacts:
-    paths:
-      - lib/*
-      - package.json

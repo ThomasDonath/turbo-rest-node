@@ -1,7 +1,7 @@
 {
   "name": "turbo-rest-node",
   "description": "base to implement REST with Node.js and Express",
-  "version": "0.30.12",
+  "version": "0.30.14",
   "license": "MIT",
   "repository": {
     "type": "git",
