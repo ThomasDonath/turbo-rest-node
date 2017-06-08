@@ -2,6 +2,7 @@ build:
 
 npm: globals
 	rm -rf node_modules/* || true
+	rm package-lock.json
 	npm install
 	sudo npm link
 

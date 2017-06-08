@@ -1,4 +1,4 @@
 export interface IJwtToken {
-    username: string;
-    tenant: string;
+  username: string;
+  tenant: string;
 }
