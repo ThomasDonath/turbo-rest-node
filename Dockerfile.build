@@ -1,0 +1,25 @@
+FROM node:8.1
+#
+# Build-Container for my service, will produce a tar-file to deploy to the runtime container
+#
+
+MAINTAINER ThomDo <td@thomasdonath.com>
+
+RUN mkdir -p /usr/build/src      \
+    mkdir -p /usr/build/lib
+
+COPY package.json tsconfig.json tsconfig-global-node.json tslint.json /usr/build/
+
+WORKDIR /usr/build
+
+RUN npm install
+
+COPY ./src /usr/build/src
+
+RUN npm run lint; npm run build
+
+
+#
+# docker build -t api-build -f Dockerfile.build .
+# docker run --rm api-build > dist/build.tar.gz
+#
