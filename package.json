@@ -15,9 +15,9 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "start": "node lib/sample/sample-server.js",
-    "build": "tsc",
-    "lint": "tslint \"src/**/*.ts\"",
-    "unittest": "mocha -r ts-node/register src/*.spec.ts",
+    "build": "node_modules/.bin/tsc",
+    "lint": "node_modules/.bin/tslint \"src/**/*.ts\"",
+    "unittest": "node_modules/.bin/mocha -r ts-node/register src/*.spec.ts",
     "test": "(export CONF_DB_SERVERNAME_PORT=localhost:27017; export CONF_DB_USERNAME=schemaOwner; export CONF_DB_USERPASSWORD=manager28; node lib/sample/sample-server.js &); sleep 2; curl -v localhost:8080/ping; pkill node"
   },
   "private": false,
