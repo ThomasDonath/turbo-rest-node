@@ -1,7 +1,7 @@
 {
   "name": "turbo-rest-node",
   "description": "base to implement REST with Node.js and Express",
-  "version": "0.31.2",
+  "version": "0.32.1",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -27,9 +27,9 @@
     "express": "4.15.3",
     "jsonwebtoken": "7.4.1",
     "method-override": "2.3.9",
-    "mongodb": "2.2.28",
+    "mongodb": "2.2.29",
     "morgan": "1.8.2",
-    "uuid": "3.0.1",
+    "uuid": "3.1.0",
     "winston": "2.3.1"
   },
   "devDependencies": {
@@ -38,13 +38,13 @@
     "tslint": "5.4.3",
     "typescript": "2.3.4",
     "ts-node": "3.0.6",
-    "@types/express": "4.0.35",
+    "@types/express": "4.0.36",
     "@types/body-parser": "1.16.3",
     "@types/winston": "2.3.3",
     "@types/errorhandler": "0.0.30",
     "@types/method-override": "0.0.29",
     "@types/morgan": "1.7.32",
-    "@types/jsonwebtoken": "7.2.0",
+    "@types/jsonwebtoken": "7.2.1",
     "@types/mocha": "2.2.41"
   }
 }

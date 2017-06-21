@@ -45,6 +45,12 @@ You may use a public key instead, however you have to put the secret string or k
 
 If no key given, in development mode we set user=test and tenant=test-tenant. But in production mode we dont start.
 
+## Logging
+
+Imports DEBUG module but doesnt write any message. But Express logs out the requests.
+
+Uses Turbo Logger (Winston based). In production mode log level is set to INFO, in development mode to DEBUG. This can be overwritten with environment CONF_LOG_LEVEL.
+
 ## How to set up for development
 
 * git clone

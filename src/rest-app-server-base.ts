@@ -17,7 +17,8 @@ import { RestExceptionBase } from './rest-exception-base';
  *              * get configuration from the environment:
  *                 - CONF_LISTEN_PORT       (8080)
  *                 - NODE_ENV               (development)
- *                 - CONF_SECRET_KEY     Secret String or public key to verify JWT in headers.x-auth-token
+ *                 - CONF_SECRET_KEY        Secret String or public key to verify JWT in headers.x-auth-token
+ *                 - optional CONF_LOG_LEVEL Log Level, if not set then DEBUG in development, INFO in production
  *              * handling all the HTTP request/response stuff, so we can use a controller with pure JSON in/output
  *              * does logging
  *              * if DEV mode and no CONF_SECRET_KEY, then no authentication (user = test, tenant = test-tenant), if PROD then Error
@@ -63,10 +64,14 @@ export class RestAppServerBase {
     this.APPL_ENV = process.env.APPL_ENV;
     this.isDevelopment = (this.APPL_ENV === 'development');
 
-    if (this.isDevelopment) {
-      RestAppServerBase.logger.svc.level = 'debug';
+    if (process.env.CONF_LOG_LEVEL) {
+      RestAppServerBase.logger.svc.level = process.env.CONF_LOG_LEVEL;
     } else {
-      RestAppServerBase.logger.svc.level = 'info';
+      if (this.isDevelopment) {
+        RestAppServerBase.logger.svc.level = 'debug';
+      } else {
+        RestAppServerBase.logger.svc.level = 'info';
+      }
     }
 
     RestAppServerBase.secretKey = process.env.CONF_SECRET_KEY;
@@ -117,11 +122,11 @@ export class RestAppServerBase {
         let jwtt: IJwtToken;
 
         try {
-          const bearerHeader = req.headers.authorization;
+          const headerString: string = req.headers.authorization as string;
+          const bearerHeader: string | string[] = headerString.split(' ');
           if (typeof bearerHeader !== 'undefined') {
-            const bearer = bearerHeader.split(' ');
-
-            jwtt = jwt.verify(bearer[1], RestAppServerBase.secretKey);
+            const bearer = bearerHeader;
+            jwtt = jwt.verify(bearer[1], RestAppServerBase.secretKey) as IJwtToken;
           } else {
             throw new Error('cant login without token');
           }
@@ -260,6 +265,7 @@ export class RestAppServerBase {
     RestAppServerBase.logger.svc.info('port: %d', this.confListenPort);
     RestAppServerBase.logger.svc.info('mode: %s', this.APPL_ENV);
     RestAppServerBase.logger.svc.info('its development? ' + this.isDevelopment);
+    RestAppServerBase.logger.svc.info('log level: %s', RestAppServerBase.logger.svc.level);
 
     this.thisServer.disable('x-powered-by');
 
