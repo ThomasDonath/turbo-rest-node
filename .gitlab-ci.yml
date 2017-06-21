@@ -1,6 +1,6 @@
 # Build library and push to NPM
 
-image: node:8.0
+image: node:8.1
 
 cache:
   paths:
