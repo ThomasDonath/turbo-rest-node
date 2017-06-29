@@ -1,50 +1,49 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Starten",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceRoot}/lib/sample/sample-server.js",
-            "stopOnEntry": false,
-            "args": [],
-            "cwd": "${workspaceRoot}",
-            "preLaunchTask": null,
-            "runtimeExecutable": null,
-            "runtimeArgs": [
-                "--nolazy"
-            ],
-            "env": {
-                "APPL_ENV": "development",
-                "DEBUG": ""
-            },
-            "console": "internalConsole",
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceRoot}/lib/*.js",
-                "${workspaceRoot}/lib/*.js.map"
-            ]
-        },
-        {
-            "name": "Anfügen",
-            "type": "node",
-            "request": "attach",
-            "port": 5858,
-            "address": "localhost",
-            "restart": false,
-            "sourceMaps": false,
-            "outFiles": [],
-            "localRoot": "${workspaceRoot}",
-            "remoteRoot": null
-        },
-        {
-            "name": "Attach to Process",
-            "type": "node",
-            "request": "attach",
-            "processId": "${command.PickProcess}",
-            "port": 5858,
-            "sourceMaps": false,
-            "outFiles": []
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [{
+      "name": "Starten",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceRoot}/lib/sample/sample-server.js",
+      "stopOnEntry": false,
+      "args": [],
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": null,
+      "runtimeExecutable": null,
+      "runtimeArgs": [
+        "--nolazy"
+      ],
+      "env": {
+        "APP_ENV": "development",
+        "DEBUG": ""
+      },
+      "console": "internalConsole",
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceRoot}/lib/*.js",
+        "${workspaceRoot}/lib/*.js.map"
+      ]
+    },
+    {
+      "name": "Anfügen",
+      "type": "node",
+      "request": "attach",
+      "port": 5858,
+      "address": "localhost",
+      "restart": false,
+      "sourceMaps": false,
+      "outFiles": [],
+      "localRoot": "${workspaceRoot}",
+      "remoteRoot": null
+    },
+    {
+      "name": "Attach to Process",
+      "type": "node",
+      "request": "attach",
+      "processId": "${command.PickProcess}",
+      "port": 5858,
+      "sourceMaps": false,
+      "outFiles": []
+    }
+  ]
 }

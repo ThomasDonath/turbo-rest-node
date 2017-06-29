@@ -44,7 +44,7 @@ export class RestAppServerBase {
 
   private isDevelopment: boolean;
   private confListenPort: string;
-  private APPL_ENV: string;
+  private APP_ENV: string;
 
   /**
    * @constructor
@@ -58,11 +58,11 @@ export class RestAppServerBase {
 
     this.confListenPort = process.env.CONF_LISTEN_PORT || 8080;
 
-    if ((!process.env.APPL_ENV) || ((process.env.APPL_ENV !== 'development') && (process.env.APPL_ENV !== 'production'))) {
-      throw new Error('APPL_ENV not set. Cant start in unspecified environment - use "development" or "production"!');
+    if ((!process.env.APP_ENV) || ((process.env.APP_ENV !== 'development') && (process.env.APP_ENV !== 'production'))) {
+      throw new Error('APP_ENV not set. Cant start in unspecified environment - use "development" or "production"!');
     }
-    this.APPL_ENV = process.env.APPL_ENV;
-    this.isDevelopment = (this.APPL_ENV === 'development');
+    this.APP_ENV = process.env.APP_ENV;
+    this.isDevelopment = (this.APP_ENV === 'development');
 
     if (process.env.CONF_LOG_LEVEL) {
       RestAppServerBase.logger.svc.level = process.env.CONF_LOG_LEVEL;
@@ -263,7 +263,7 @@ export class RestAppServerBase {
 
     RestAppServerBase.logger.svc.info('using configuration:');
     RestAppServerBase.logger.svc.info('port: %d', this.confListenPort);
-    RestAppServerBase.logger.svc.info('mode: %s', this.APPL_ENV);
+    RestAppServerBase.logger.svc.info('mode: %s', this.APP_ENV);
     RestAppServerBase.logger.svc.info('its development? ' + this.isDevelopment);
     RestAppServerBase.logger.svc.info('log level: %s', RestAppServerBase.logger.svc.level);
 
