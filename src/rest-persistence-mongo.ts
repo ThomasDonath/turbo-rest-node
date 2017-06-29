@@ -46,10 +46,10 @@ export class RestPersistenceMongo extends RestPersistenceAbstract {
     if (useAuthentication) {
 
       this.dbMongoUrl = `mongodb://${this.dbUsername}:${this.dbUserPassword}@${this.dbHostNamePort}/`;
-
       this.dbMongoOptions = '?authSource=admin';
     } else {
       this.dbMongoUrl = `mongodb://${this.dbHostNamePort}/`;
+      this.dbMongoOptions = '';
     }
   }
 

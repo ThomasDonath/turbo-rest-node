@@ -15,7 +15,10 @@
       ],
       "env": {
         "APP_ENV": "development",
-        "DEBUG": ""
+        "DEBUG": "",
+        "CONF_DB_SERVERNAME_PORT": "localhost:27017",
+        "CONF_DB_USERNAME": "schemaOwner",
+        "CONF_DB_USERPASSWORD": "manager28"
       },
       "console": "internalConsole",
       "sourceMaps": true,

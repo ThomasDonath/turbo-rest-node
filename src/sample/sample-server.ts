@@ -9,18 +9,18 @@ import { SampleAppRestServer } from './sample-app-rest-server';
 // configure logging
 const myLogger: ITurboLogger = { svc: null };
 myLogger.svc = new (loggerLib.Logger)({
-    transports: [
-        new (loggerLib.transports.Console)({
-            formatter: (options) => {
-                // add CID (Correlation ID)
-                return options.timestamp() + ' ' +
-                    options.level.toUpperCase() + ' ' +
-                    (options.message ? options.message : '') +
-                    (options.meta && Object.keys(options.meta).length ? '' + JSON.stringify(options.meta) : '');
-            },
-            timestamp: () => Date.now(),
-        }),
-    ],
+  transports: [
+    new (loggerLib.transports.Console)({
+      formatter: (options) => {
+        // add CID (Correlation ID)
+        return options.timestamp() + ' ' +
+          options.level.toUpperCase() + ' ' +
+          (options.message ? options.message : '') +
+          (options.meta && Object.keys(options.meta).length ? '' + JSON.stringify(options.meta) : '');
+      },
+      timestamp: () => Date.now(),
+    }),
+  ],
 });
 
 const samplePersistence = new RestPersistenceMongo(true, 'sample', myLogger, 'dbPerTenant', null);
