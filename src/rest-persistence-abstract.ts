@@ -14,130 +14,130 @@ const DFLT_ROW_LIMIT: number = 100;
  */
 export abstract class RestPersistenceAbstract {
 
-    protected static logger: ITurboLogger;
+  protected static logger: ITurboLogger;
 
-    protected indexDefs;
-    protected dbHostNamePort: string;
-    protected dbUsername: string;
-    protected dbUserPassword: string;
+  protected indexDefs;
+  protected dbHostNamePort: string;
+  protected dbUsername: string;
+  protected dbUserPassword: string;
 
-    protected rowLimit: number = DFLT_ROW_LIMIT;
+  protected rowLimit: number = DFLT_ROW_LIMIT;
 
-    /**
-     * @constructor
-     * @param useAuthentication want we use authentication against the database or not?
-     * @param inject the logger instance
-     */
-    constructor(protected useAuthentication: boolean = true, useLogger: ITurboLogger) {
-        RestPersistenceAbstract.logger = useLogger;
+  /**
+   * @constructor
+   * @param useAuthentication want we use authentication against the database or not?
+   * @param inject the logger instance
+   */
+  constructor(protected useAuthentication: boolean = true, useLogger: ITurboLogger) {
+    RestPersistenceAbstract.logger = useLogger;
 
-        this.dbHostNamePort = process.env.CONF_DB_SERVERNAME_PORT || 'localhost:27017';
-        this.dbUsername = process.env.CONF_DB_USERNAME;
-        this.dbUserPassword = process.env.CONF_DB_USERPASSWORD;
+    this.dbHostNamePort = process.env.CONF_DB_SERVERNAME_PORT || 'localhost:27017';
+    this.dbUsername = process.env.CONF_DB_USERNAME;
+    this.dbUserPassword = process.env.CONF_DB_USERPASSWORD;
 
-        RestPersistenceAbstract.logger.svc.info(`CONF_DB_SERVERNAME_PORT: "${this.dbHostNamePort}"`);
-        RestPersistenceAbstract.logger.svc.info(`CONF_DB_USERNAME: "${this.dbUsername}"`);
-        RestPersistenceAbstract.logger.svc.info(`CONF_DB_USERPASSWORD: ${this.dbUserPassword ? '***' : 'null'}`);
+    RestPersistenceAbstract.logger.svc.info(`CONF_DB_SERVERNAME_PORT: "${this.dbHostNamePort}"`);
+    RestPersistenceAbstract.logger.svc.info(`CONF_DB_USERNAME: "${this.dbUsername}"`);
+    RestPersistenceAbstract.logger.svc.info(`CONF_DB_USERPASSWORD: ${this.dbUserPassword ? '***' : 'null'}`);
+  }
+
+  /**
+   * @function setIndexDefs
+   * @description an array of index definitions to be used during initialisation of a collection inside the INSERT method
+   */
+  public setIndexDefs(indexList): void {
+    this.indexDefs = indexList;
+  }
+
+  /**
+   * @function setRowLimit
+   * @description set max. number of rows to be returned by Query By Example method
+   * @param newRowLimit new limit, if null then my deafult (100) will be used
+   */
+  public setRowLimit(newRowLimit: number) {
+    this.rowLimit = newRowLimit || DFLT_ROW_LIMIT;
+  }
+
+  /**
+   * @function doQBE
+   * @description query by example
+   * @param predicate JSON object with property/value pairs to filter the result (may be empty)
+   * @param sortCriteria JSON object with property/value pairs to sort the result (may be empty)
+   * @param tenantId ID for the requested tenant. Mandatory!
+   * @param skipRows if not null then skip these rows for pagination, if null then no skip - for performance it would be better, to put the skip inside the query predicate
+   * @param limitRows return max. this number of rows, if null then we return max this.rowLimit rows
+   * @param getMySelf reference to a function returning the persistence constroller instance. Mandatory!
+   */
+  public abstract doQBE<T extends IRestPayloadBase>(predicate, sortCriteria, tenantId: string, skipRows: number, limitRows: number, getMySelf): Promise<T>;
+  /**
+   * @function doGet
+   * @description query one and only one row for a given primary key value
+   * @param idIn primary key value to ask for. Mandatory!
+   * @param tenantId ID for the requested tenant. Mandatory!
+   * @param getMySelf reference to a function returning the persistence constroller instance. Mandatory!
+   */
+  public abstract doGet<T extends IRestPayloadBase>(idIn: string, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
+  /**
+   * @function doInsert
+   * @description insert a new row
+   * @param thisRow full object for the new row
+   * @param tenantId ID for the requested tenant. Mandatory!
+   * @param getMySelf reference to a function returning the persistence constroller instance. Mandatory!
+   */
+  public abstract doInsert<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
+  /**
+   * @function doDelete
+   * @description insert a new row
+   * @param thisRow full object for the row to be deleted
+   * @param tenantId ID for the requested tenant. Mandatory!
+   * @param getMySelf reference to a function returning the persistence constroller instance. Mandatory!
+   */
+  public abstract doDelete(idIn: string, rowVersionIn: number, changedByIn: string, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<boolean>;
+  /**
+   * @function doUpdate
+   * @description update a row, must exists
+   * @param thisRow full object for the row to be updated
+   * @param tenantId ID for the requested tenant. Mandatory!
+   * @param getMySelf reference to a function returning the persistence constroller instance. Mandatory!
+   */
+  public abstract doUpdate<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
+  /**
+   * @function healthCheck
+   * @description will be configured and called from express server (URL host:port/ping/) through all layers to implement a health check.
+   *              Implementation should at least open and close a connection to the database
+   */
+  public abstract healthCheck<T extends IRestPayloadBase>(tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
+
+  /**
+   * @description compute a new audit record with loged in user and an incremented row version
+   * @param oldRowVersion auditRecord.rowVersion as queried from the database
+   * @param logUsername username loged in from request.params.user (has to be set in authentication)
+   */
+  protected setAuditData(oldRowVersion: number, logUsername: string): IAuditRecord {
+    if (!logUsername) {
+      throw new MissingAuditData();
     }
 
-    /**
-     * @function setIndexDefs
-     * @description an array of index definitions to be used during initialisation of a collection inside the INSERT method
-     */
-    public setIndexDefs(indexList): void {
-        this.indexDefs = indexList;
+    try {
+      if (!(oldRowVersion + 1)) {
+        throw new MissingAuditData();
+      }
+    } catch (e) {
+      if (e.name === 'TypeError') {
+        throw new MissingAuditData();
+      } else {
+        throw (e);
+      }
     }
 
-    /**
-     * @function setRowLimit
-     * @description set max. number of rows to be returned by Query By Example method
-     * @param newRowLimit new limit, if null then my deafult (100) will be used
-     */
-    public setRowLimit(newRowLimit: number) {
-        this.rowLimit = newRowLimit || DFLT_ROW_LIMIT;
-    }
-
-    /**
-     * @function doQBE
-     * @description query by example
-     * @param predicate JSON object with property/value pairs to filter the result (may be empty)
-     * @param sortCriteria JSON object with property/value pairs to sort the result (may be empty)
-     * @param tenantId ID for the requested tenant. Mandatory!
-     * @param skipRows if not null then skip these rows for pagination, if null then no skip - for performance it would be better, to put the skip inside the query predicate
-     * @param limitRows return max. this number of rows, if null then we return max this.rowLimit rows
-     * @param getMySelf reference to a function returning the persistence constroller instance. Mandatory!
-     */
-    public abstract doQBE<T extends IRestPayloadBase>(predicate, sortCriteria, tenantId: string, skipRows: number, limitRows: number, getMySelf): Promise<T>;
-    /**
-     * @function doGet
-     * @description query one and only one row for a given primary key value
-     * @param idIn primary key value to ask for. Mandatory!
-     * @param tenantId ID for the requested tenant. Mandatory!
-     * @param getMySelf reference to a function returning the persistence constroller instance. Mandatory!
-     */
-    public abstract doGet<T extends IRestPayloadBase>(idIn: string, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
-    /**
-     * @function doInsert
-     * @description insert a new row
-     * @param thisRow full object for the new row
-     * @param tenantId ID for the requested tenant. Mandatory!
-     * @param getMySelf reference to a function returning the persistence constroller instance. Mandatory!
-     */
-    public abstract doInsert<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
-    /**
-     * @function doDelete
-     * @description insert a new row
-     * @param thisRow full object for the row to be deleted
-     * @param tenantId ID for the requested tenant. Mandatory!
-     * @param getMySelf reference to a function returning the persistence constroller instance. Mandatory!
-     */
-    public abstract doDelete(idIn: string, rowVersionIn: number, changedByIn: string, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<boolean>;
-    /**
-     * @function doUpdate
-     * @description update a row, must exists
-     * @param thisRow full object for the row to be updated
-     * @param tenantId ID for the requested tenant. Mandatory!
-     * @param getMySelf reference to a function returning the persistence constroller instance. Mandatory!
-     */
-    public abstract doUpdate<T extends IRestPayloadBase>(thisRow: T, tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
-    /**
-     * @function healthCheck
-     * @description will be configured and called from express server (URL host:port/ping/) through all layers to implement a health check.
-     *              Implementation should at least open and close a connection to the database
-     */
-    public abstract healthCheck<T extends IRestPayloadBase>(tenantId: string, getMySelf: () => RestPersistenceAbstract): Promise<T>;
-
-    /**
-     * @description compute a new audit record with loged in user and an incremented row version
-     * @param oldRowVersion auditRecord.rowVersion as queried from the database
-     * @param logUsername username loged in from request.params.user (has to be set in authentication)
-     */
-    protected setAuditData(oldRowVersion: number, logUsername: string): IAuditRecord {
-        if (!logUsername) {
-            throw new MissingAuditData();
-        }
-
-        try {
-            if (!(oldRowVersion + 1)) {
-                throw new MissingAuditData();
-            }
-        } catch (e) {
-            if (e.name === 'TypeError') {
-                throw new MissingAuditData();
-            } else {
-                throw (e);
-            }
-        }
-
-        return {
-            changedAt: new Date(),
-            changedBy: logUsername,
-            rowVersion: ++oldRowVersion,
-        };
-    }
-    /**
-     * @function getConnectString
-     * @description return the connect string (including username/password) for the given database and tenant. Must be overloaded!
-     */
-    protected abstract getConnectString(tenantId: string): string;
+    return {
+      changedAt: new Date(),
+      changedBy: logUsername,
+      rowVersion: ++oldRowVersion,
+    };
+  }
+  /**
+   * @function getConnectString
+   * @description return the connect string (including username/password) for the given database and tenant. Must be overloaded!
+   */
+  protected abstract getConnectString(tenantId: string): string;
 }

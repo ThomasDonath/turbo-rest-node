@@ -56,7 +56,7 @@ export class RestAppServerBase {
 
     this.thisServer = express();
 
-    this.confListenPort = process.env.CONF_LISTEN_PORT || 8080;
+    this.confListenPort = process.env.CONF_LISTEN_PORT || '8080';
 
     if ((!process.env.APP_ENV) || ((process.env.APP_ENV !== 'development') && (process.env.APP_ENV !== 'production'))) {
       throw new Error('APP_ENV not set. Cant start in unspecified environment - use "development" or "production"!');

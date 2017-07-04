@@ -23,7 +23,7 @@ myLogger.svc = new (loggerLib.Logger)({
   ],
 });
 
-const samplePersistence = new RestPersistenceMongo(true, 'sample', myLogger, 'dbPerTenant', null);
+const samplePersistence = new RestPersistenceMongo((process.env.APP_ENV !== 'development'), 'sample', myLogger, 'dbPerTenant', null);
 const sampleController = new SampleAppController(samplePersistence, myLogger);
 const sampleServer = new SampleAppRestServer('/', sampleController, myLogger);
 

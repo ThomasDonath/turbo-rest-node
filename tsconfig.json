@@ -1,13 +1,14 @@
 {
-    "extends": "./tsconfig-global-node.json",
-    "compilerOptions": {
-        "outDir": "./lib/",
-        "rootDir": "./src"
-    },
-    "include": [
-        "src/**/*"
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+  "extends": "./tsconfig-global-node.json",
+  "noStrictGenericChecks": true,
+  "compilerOptions": {
+    "outDir": "./lib/",
+    "rootDir": "./src"
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
