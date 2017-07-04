@@ -223,7 +223,7 @@ export class RestAppServerBase {
    * @param inUrl URL to be mapped
    * @param inMethodRef reference to method from application controller with the given signature (request and a reference to the application controller instance)
    */
-  protected addHandlerDelete(inUrl: string, inMethodRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
+  protected addHandlerDelete(inUrl: string, inMethodRef: (req: express.Request, controllerFn) => Promise<boolean>) {
     this.thisServer.delete(inUrl, this.getAuthentication, (req: express.Request, res: express.Response) => {
       this.genericHandler(req, res, inMethodRef, () => this.appController, 200);
     });
@@ -234,7 +234,7 @@ export class RestAppServerBase {
    * @param inUrl URL to be mapped
    * @param inMethodRef reference to method from application controller with the given signature (request and a reference to the application controller instance)
    */
-  protected addHandlerDeleteInsecure(inUrl: string, inMethodRef: (req: express.Request, controllerFn) => Promise<IRestPayloadBase>) {
+  protected addHandlerDeleteInsecure(inUrl: string, inMethodRef: (req: express.Request, controllerFn) => Promise<boolean>) {
     this.thisServer.delete(inUrl, (req: express.Request, res: express.Response) => {
       this.genericHandler(req, res, inMethodRef, () => this.appController, 200);
     });
@@ -306,7 +306,7 @@ export class RestAppServerBase {
   private genericHandler = (
     req: express.Request,
     res: express.Response,
-    controllerFunction: (req: express.Request, getControllerFn) => Promise<IRestPayloadBase>,
+    controllerFunction: (req: express.Request, getControllerFn) => Promise<any>,
     getControllerFn,
     successCode: number): void => {
     RestAppServerBase.logger.svc.debug('genericHandler entry');
