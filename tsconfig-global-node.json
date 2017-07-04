@@ -12,6 +12,7 @@
         "noImplicitAny": false,
         "inlineSources": true,
         "noUnusedParameters": false,
-        "noUnusedLocals": false
+        "noUnusedLocals": false,
+        "noStrictGenericChecks": true
     }
 }
