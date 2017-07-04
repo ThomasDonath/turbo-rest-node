@@ -1,6 +1,5 @@
 {
   "extends": "./tsconfig-global-node.json",
-  "noStrictGenericChecks": true,
   "compilerOptions": {
     "outDir": "./lib/",
     "rootDir": "./src"
