@@ -1,12 +1,14 @@
 # Build library and push to NPM
 
-image: node:8.1
+image: node:10
 
 stages:
     - compile
 
 compile:
   stage: compile
+  only:
+    - master
   script:
     - echo ${NPM_TOKEN} > .npmrc
 
