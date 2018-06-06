@@ -2,7 +2,6 @@ build:
 
 npm: globals
 	rm -rf node_modules/* || true
-	rm package-lock.json
 	npm install
 	sudo npm link
 
@@ -22,9 +21,6 @@ build: clean lint
 
 publish: build
 	npm publish
-
-securityCheck:
-	retire -v
 
 test: build
 	npm test
